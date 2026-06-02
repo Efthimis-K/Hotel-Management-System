@@ -1,0 +1,29 @@
+[ {
+  "reservationId" : "RES-634656D0",
+  "customerId" : "1",
+  "roomNumber" : 1,
+  "checkInDate" : [ 2026, 5, 3 ],
+  "checkOutDate" : [ 2026, 5, 5 ],
+  "status" : "CONFIRMED"
+}, {
+  "reservationId" : "RES-B5A200DF",
+  "customerId" : "2",
+  "roomNumber" : 2,
+  "checkInDate" : [ 2026, 8, 2 ],
+  "checkOutDate" : [ 2026, 8, 4 ],
+  "status" : "CANCELLED"
+}, {
+  "reservationId" : "RES-C90B602D",
+  "customerId" : "1",
+  "roomNumber" : 1,
+  "checkInDate" : [ 2026, 8, 5 ],
+  "checkOutDate" : [ 2026, 8, 7 ],
+  "status" : "CONFIRMED"
+}, {
+  "reservationId" : "RES-E845AF11",
+  "customerId" : "5",
+  "roomNumber" : 2,
+  "checkInDate" : [ 2026, 9, 1 ],
+  "checkOutDate" : [ 2026, 9, 2 ],
+  "status" : "CONFIRMED"
+} ]

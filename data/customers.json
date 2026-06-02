@@ -1,0 +1,19 @@
+[ {
+  "customerId" : "2",
+  "firstName" : "thim",
+  "lastName" : "karah",
+  "email" : "t@l.com",
+  "phoneNumber" : "6945892139"
+}, {
+  "customerId" : "1",
+  "firstName" : "thimios",
+  "lastName" : "karah",
+  "email" : "t@t.com",
+  "phoneNumber" : "6987562347"
+}, {
+  "customerId" : "5",
+  "firstName" : "george",
+  "lastName" : "karah",
+  "email" : "g@k.com",
+  "phoneNumber" : "6985152324"
+} ]

@@ -1,0 +1,11 @@
+[ {
+  "roomNumber" : 1,
+  "roomType" : "DOUBLE",
+  "pricePerNight" : 80.0,
+  "available" : true
+}, {
+  "roomNumber" : 2,
+  "roomType" : "SUITE",
+  "pricePerNight" : 150.0,
+  "available" : true
+} ]

@@ -1,0 +1,26 @@
+# IDE
+.vscode/
+
+# Build output
+target/
+out/
+
+# IDE files
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+
+# Maven
+.mvn/
+!/.mvn/wrapper/maven-wrapper.jar
+
+# OS
+.DS_Store
+Thumbs.db
+
+# User files
+UML-Class-Diagram.md
+implementation_plan.md
+ΆΣΚΗΣΗ 3.odt
