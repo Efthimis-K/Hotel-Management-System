@@ -8,4 +8,9 @@
   "roomType" : "SUITE",
   "pricePerNight" : 150.0,
   "available" : true
+}, {
+  "roomNumber" : 3,
+  "roomType" : "DELUXE",
+  "pricePerNight" : 200.0,
+  "available" : false
 } ]

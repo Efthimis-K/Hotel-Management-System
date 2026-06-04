@@ -5,6 +5,8 @@
 
 - Future plans include a GUI and a database.# Hotel Management System
 
+- ALWAYS read the current codebase to understand the current state of the project and provide relevant outputs.
+
 # Tech stack
 
 - Tech stack is java 21, maven, and plugins and dependencies described in pom.xml on the project root.
