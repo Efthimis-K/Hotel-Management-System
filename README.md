@@ -9,6 +9,7 @@ A console-based hotel management system with file-based JSON persistence, built 
 - **Reservation Management** — Create, cancel, and search reservations; supports PENDING, CONFIRMED, CANCELLED, and COMPLETED statuses; automatic total price calculation
 - **Robust Error Handling** — Centralized `ErrorHandler` with logging and user-friendly messages; startup safety checks
 - **File Persistence** — JSON storage via Jackson `JavaTimeModule` for dates; files auto-created on first write
+- **JavaFX GUI** — Optional graphical interface with room management view
 
 ## Requirements
 
@@ -17,12 +18,19 @@ A console-based hotel management system with file-based JSON persistence, built 
 
 ## Running the Application
 
+### Console UI
+
 ```bash
-# Build and run
 mvn clean compile exec:java -Dexec.mainClass="hotel.Main"
 ```
 
-Or open the project in your IDE and run `Main.java`.
+### JavaFX GUI
+
+```bash
+mvn clean javafx:run
+```
+
+Or open the project in your IDE and run `GuiMain.java` for the GUI, or `Main.java` for the console UI.
 
 ## Usage
 
@@ -90,15 +98,13 @@ Layered architecture using Repository and Service patterns with constructor-base
 - `util/` — `JsonFileHandler` (Jackson-based JSON I/O) and `ErrorHandler` (centralized logging and user messaging)
 - `exception/` — Custom exceptions (`ValidationException`, `ResourceNotFoundException`, `DuplicateResourceException`, `StorageException`, `HotelException`)
 - `Main.java` — Console UI
+- `gui/` — JavaFX application (`GuiMain.java`, `RoomManagementView.java`)
 
 Data is stored in `data/rooms.json`, `data/customers.json`, and `data/reservations.json`.
 
 ## Persistence
 
-`JsonFileHandler` uses Jackson with `JavaTimeModule` to serialize/deserialize `LocalDate` fields. On startup:
-
-1. Repositories load existing data from `data/` (or create empty lists if files do not exist)
-2. `HotelManager.recalculateAllRoomAvailability()` updates room `isAvailable` flags based on current reservations
+`JsonFileHandler` uses Jackson with `JavaTimeModule` to serialize/deserialize `LocalDate` fields. On startup, repositories load existing data from `data/` (or create empty lists if files do not exist). Room availability is determined dynamically at query time via `ReservationService`.
 
 ## Testing
 
@@ -114,3 +120,4 @@ mvn test
 - **Maven** — build and dependency management
 - **Jackson** — JSON serialization with Java 8 Time module
 - **Apache Commons Validator** — email format validation
+- **JavaFX** — optional GUI framework
