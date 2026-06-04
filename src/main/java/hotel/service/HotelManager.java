@@ -21,7 +21,6 @@ public class HotelManager {
         this.roomService = new RoomService(roomRepository);
         this.reservationService = new ReservationService(reservationRepository, roomRepository);
         this.customerRepository = customerRepository;
-        recalculateAllRoomAvailability();
     }
 
     public RoomService getRoomService() {
@@ -52,13 +51,5 @@ public class HotelManager {
         return roomService.getAllRooms().stream()
                 .filter(room -> reservationService.isRoomAvailable(room.getRoomNumber(), checkIn, checkOut))
                 .toList();
-    }
-
-    private void recalculateAllRoomAvailability() {
-        roomService.getAllRooms().forEach(room -> {
-            boolean isAvailable = reservationService.isRoomAvailable(room.getRoomNumber(), 
-                java.time.LocalDate.now(), java.time.LocalDate.now().plusDays(1));
-            room.setAvailable(isAvailable);
-        });
     }
 }
