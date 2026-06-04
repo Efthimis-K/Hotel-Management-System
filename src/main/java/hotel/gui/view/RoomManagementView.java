@@ -111,7 +111,7 @@ public class RoomManagementView {
         priceField.setText(String.valueOf(typeCombo.getValue().getDefaultPrice()));
 
         typeCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null && priceField.getText().isEmpty()) {
+            if (newVal != null) {
                 priceField.setText(String.valueOf(newVal.getDefaultPrice()));
             }
         });
