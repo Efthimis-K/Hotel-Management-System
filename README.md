@@ -37,23 +37,27 @@ Or open the project in your IDE and run `GuiMain.java` for the GUI, or `Main.jav
 The application presents a layered menu-driven interface.
 
 ### Main Menu
+
 1. Room Management
 2. Customer Management
 3. Reservation Management
 4. Exit
 
 ### Room Management
+
 1. Create Room — choose type and set a custom price
 2. View All Rooms — shows number, type, price, and availability
 3. View Available Rooms — filter by date range
 4. Back to Main Menu
 
 ### Customer Management
+
 1. Register Customer — ID, first/last name, email, phone with validation
 2. View All Customers
 3. Back to Main Menu
 
 ### Reservation Management
+
 1. Create Reservation — customer and room selection with date validation
 2. Cancel Reservation — changes status to CANCELLED
 3. Search Reservations — by customer, date range, or both
@@ -65,14 +69,14 @@ The application presents a layered menu-driven interface.
 
 ## Room Types & Pricing
 
-| Type       | Description      | Default Price/Night |
-|------------|------------------|---------------------|
-| Single     | Single Room      | $50                 |
-| Double     | Double Room      | $80                 |
-| Suite      | Suite            | $150                |
-| Deluxe     | Deluxe Suite     | $200                |
+| Type   | Description  | Default Price/Night |
+| ------ | ------------ | ------------------- |
+| Single | Single Room  | $50                 |
+| Double | Double Room  | $80                 |
+| Suite  | Suite        | $150                |
+| Deluxe | Deluxe Suite | $200                |
 
-*Prices can be customized per room at creation time.*
+_Prices can be customized per room at creation time._
 
 ## Customer Validation
 
@@ -86,7 +90,7 @@ The application presents a layered menu-driven interface.
 - `CANCELLED` — cancelled by user
 - `COMPLETED` — stay has ended
 
-*Rooms auto-toggle availability based on current date relative to their CONFIRMED reservations.*
+_Rooms auto-toggle availability based on current date relative to their CONFIRMED reservations._
 
 ## Architecture
 
@@ -98,7 +102,7 @@ Layered architecture using Repository and Service patterns with constructor-base
 - `util/` — `JsonFileHandler` (Jackson-based JSON I/O) and `ErrorHandler` (centralized logging and user messaging)
 - `exception/` — Custom exceptions (`ValidationException`, `ResourceNotFoundException`, `DuplicateResourceException`, `StorageException`, `HotelException`)
 - `Main.java` — Console UI
-- `gui/` — JavaFX application (`GuiMain.java`, `RoomManagementView.java`)
+- `gui/` — JavaFX single-window application. `GuiMain` hosts a `BorderPane` whose center is swapped between views; `NavigationManager` keeps a back/forward history and updates the breadcrumb. One view class per console operation (e.g. `CreateRoomView`, `SearchReservationsView`, `CheckAvailabilityView`) — no new windows or dialogs are ever opened.
 
 Data is stored in `data/rooms.json`, `data/customers.json`, and `data/reservations.json`.
 

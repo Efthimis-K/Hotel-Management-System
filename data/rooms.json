@@ -13,4 +13,9 @@
   "roomType" : "DELUXE",
   "pricePerNight" : 200.0,
   "available" : false
+}, {
+  "roomNumber" : 101,
+  "roomType" : "DOUBLE",
+  "pricePerNight" : 80.0,
+  "available" : true
 } ]

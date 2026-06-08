@@ -20,4 +20,5 @@
 
 - To run the project, use the Standard Production Way: Build the JAR: `mvn clean package`
 - Run the JAR: `java -jar target/hotel-1.0-SNAPSHOT.jar`
-- Testing is initiated with mvn test.
+- Testing is initiated with `mvn test`.
+- Commands are running in the powershell terminal.
