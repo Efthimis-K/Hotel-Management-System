@@ -45,22 +45,43 @@ public class ViewAvailableRoomsView implements View {
     private final javafx.scene.control.Button searchButton
             = ViewUtils.primaryButton("Search", this::search);
 
+    /**
+     * Initializes the view with required dependencies and builds the UI layout.
+     *
+     * @param hotelManager      provides access to hotel room data and availability queries
+     * @param navigationManager provides view navigation capabilities
+     */
     public ViewAvailableRoomsView(HotelManager hotelManager, NavigationManager navigationManager) {
         this.hotelManager = hotelManager;
         this.navigationManager = navigationManager;
         this.root = buildView();
     }
 
+    /**
+     * Returns the title of this view.
+     *
+     * @return the view title
+     */
     @Override
     public String getTitle() {
         return TITLE;
     }
 
+    /**
+     * Provides the JavaFX node hierarchy for this view.
+     *
+     * @return The root {@code Node} containing the view layout.
+     */
     @Override
     public Node getView() {
         return root;
     }
 
+    /**
+     * Constructs the view layout containing date pickers, the results table, and search button.
+     *
+     * @return the root container for this view
+     */
     private VBox buildView() {
         VBox box = ViewUtils.formContainer(TITLE);
 
@@ -90,6 +111,12 @@ public class ViewAvailableRoomsView implements View {
         return box;
     }
 
+    /**
+     * Initializes the table columns for displaying available room information.
+     *
+     * Configures room number, type, and price per night columns, with prices
+     * formatted in currency format.
+     */
     private void setupTable() {
         TableColumn<Room, Integer> roomNumberCol = new TableColumn<>("Room Number");
         roomNumberCol.setCellValueFactory(cellData -> {
@@ -123,6 +150,10 @@ public class ViewAvailableRoomsView implements View {
         tableView.setItems(roomData);
     }
 
+    /**
+     * Retrieves and displays rooms available for the selected date range.
+     */
+    ```
     private void search() {
         LocalDate checkIn = readDate(checkInPicker, "check-in");
         LocalDate checkOut = readDate(checkOutPicker, "check-out");
@@ -148,6 +179,13 @@ public class ViewAvailableRoomsView implements View {
         }
     }
 
+    /**
+     * Retrieves the selected date from a DatePicker.
+     *
+     * @param picker the DatePicker to read from
+     * @param label  the date field label used in the warning message if no date is selected
+     * @return the selected LocalDate, or null if no date is selected
+     */
     private LocalDate readDate(DatePicker picker, String label) {
         LocalDate date = picker.getValue();
         if (date == null) {

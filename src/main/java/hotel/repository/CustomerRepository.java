@@ -16,6 +16,12 @@ import hotel.storage.DatabaseManager;
 
 public class CustomerRepository {
 
+    /**
+     * Inserts a new customer record into the database.
+     *
+     * @throws DuplicateResourceException if a customer with the same ID already exists
+     * @throws StorageException if a database error occurs
+     */
     public void addCustomer(Customer customer) {
         String sql = "INSERT INTO customers (customer_id, first_name, last_name, email, phone_number) VALUES (?, ?, ?, ?, ?)";
         Connection conn = DatabaseManager.getInstance().getConnection();
@@ -34,6 +40,12 @@ public class CustomerRepository {
         }
     }
 
+    /**
+     * Retrieves all customers from the database.
+     *
+     * @return a list of all customers
+     * @throws StorageException if a database error occurs
+     */
     public List<Customer> getAllCustomers() {
         List<Customer> customers = new ArrayList<>();
         String sql = "SELECT customer_id, first_name, last_name, email, phone_number FROM customers";
@@ -48,6 +60,11 @@ public class CustomerRepository {
         return customers;
     }
 
+    /**
+     * Retrieves a customer by their ID.
+     *
+     * @return an Optional containing the customer if found, otherwise an empty Optional
+     */
     public Optional<Customer> getCustomerById(String customerId) {
         if (customerId == null) {
             return Optional.empty();
@@ -67,6 +84,13 @@ public class CustomerRepository {
         return Optional.empty();
     }
 
+    /**
+     * Updates a customer's information in the database.
+     *
+     * @param customer the customer object containing updated information
+     * @throws ResourceNotFoundException if no customer with the specified ID exists
+     * @throws StorageException if a database error occurs
+     */
     public void updateCustomer(Customer customer) {
         String sql = "UPDATE customers SET first_name = ?, last_name = ?, email = ?, phone_number = ? WHERE customer_id = ?";
         Connection conn = DatabaseManager.getInstance().getConnection();
@@ -85,6 +109,13 @@ public class CustomerRepository {
         }
     }
 
+    /**
+     * Deletes a customer from the database.
+     *
+     * @param customerId the ID of the customer to delete
+     * @throws ResourceNotFoundException if no customer with the specified ID exists
+     * @throws StorageException if a database error occurs during deletion
+     */
     public void deleteCustomer(String customerId) {
         String sql = "DELETE FROM customers WHERE customer_id = ?";
         Connection conn = DatabaseManager.getInstance().getConnection();
@@ -99,6 +130,13 @@ public class CustomerRepository {
         }
     }
 
+    /**
+     * Creates a Customer object from the current row of a ResultSet.
+     *
+     * @param rs the ResultSet positioned at a customer row
+     * @return a Customer object with values from the current row
+     * @throws SQLException if an error occurs while reading from the ResultSet
+     */
     private Customer mapCustomer(ResultSet rs) throws SQLException {
         return new Customer(
                 rs.getString("customer_id"),

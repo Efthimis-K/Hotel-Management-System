@@ -59,22 +59,40 @@ public class CreateReservationView implements View {
 
     private boolean newCustomerMode = false;
 
+    /**
+     * Creates a new Create Reservation view.
+     */
     public CreateReservationView(HotelManager hotelManager, NavigationManager navigationManager) {
         this.hotelManager = hotelManager;
         this.navigationManager = navigationManager;
         this.root = buildView();
     }
 
+    /**
+     * Provides the title of this view.
+     *
+     * @return The title of the view.
+     */
     @Override
     public String getTitle() {
         return TITLE;
     }
 
+    /**
+     * Provides the root node of the view.
+     *
+     * @return The root VBox containing the reservation creation form.
+     */
     @Override
     public Node getView() {
         return root;
     }
 
+    /**
+     * Builds the complete reservation form UI.
+     *
+     * @return the constructed form as a VBox
+     */
     private VBox buildView() {
         VBox box = ViewUtils.formContainer(TITLE);
 
@@ -153,6 +171,9 @@ public class CreateReservationView implements View {
         return box;
     }
 
+    /**
+     * Performs a live customer lookup and reveals the new-customer registration form if the customer is not found.
+     */
     private void onCustomerIdChanged() {
         String id = customerIdField.getText().trim();
         if (id.isEmpty()) {
@@ -174,6 +195,11 @@ public class CreateReservationView implements View {
         updateSubmitState();
     }
 
+    /**
+     * Enables or disables the new customer registration mode.
+     *
+     * @param enabled true to enable new customer mode and display the registration form, false otherwise
+     */
     private void setNewCustomerMode(boolean enabled) {
         newCustomerMode = enabled;
         newCustomerGrid.setVisible(enabled);
@@ -183,10 +209,18 @@ public class CreateReservationView implements View {
         }
     }
 
+    /**
+     * Updates the total price label to reflect the current room and date selections.
+     */
     private void updateTotalPrice() {
         totalPriceLabel.setText(computeTotalPriceText());
     }
 
+    /**
+     * Computes a formatted total price estimate based on room number and dates.
+     *
+     * @return a formatted total price string if all inputs are valid; otherwise, an error message.
+     */
     private String computeTotalPriceText() {
         try {
             int roomNumber = Integer.parseInt(roomNumberField.getText().trim());
@@ -208,6 +242,9 @@ public class CreateReservationView implements View {
         return "(enter room number and valid dates)";
     }
 
+    /**
+     * Validates the form and updates the submit button's enabled state.
+     */
     private void updateSubmitState() {
         boolean baseValid = !customerIdField.getText().isBlank()
                 && !roomNumberField.getText().isBlank();
@@ -229,6 +266,12 @@ public class CreateReservationView implements View {
         submitButton.setDisable(!baseValid);
     }
 
+    /**
+     * Processes the reservation form submission.
+     *
+     * Registers a new customer if needed, creates a reservation, and displays the
+     * result. Resets the form on success or displays an error message on failure.
+     */
     private void submit() {
         try {
             String id = customerIdField.getText().trim();
@@ -283,6 +326,9 @@ public class CreateReservationView implements View {
         }
     }
 
+    /**
+     * Clears all form fields and resets the view to its initial state.
+     */
     private void reset() {
         customerIdField.clear();
         firstNameField.clear();

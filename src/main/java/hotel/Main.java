@@ -67,7 +67,13 @@ public class Main {
         }
     }
 
-private static void initializeRepositories() {
+/**
+     * Initializes the database and sets up the data repositories and service manager.
+     * 
+     * Performs any required database setup or migration, then creates the repository
+     * instances and application service manager needed for the hotel system.
+     */
+    private static void initializeRepositories() {
         // Initialize database and migrate from JSON if needed
         DatabaseInitializer.initialize();
         

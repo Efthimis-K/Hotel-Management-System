@@ -62,22 +62,47 @@ public class SearchReservationsView implements View {
     private final javafx.scene.control.Button searchButton
             = ViewUtils.primaryButton("Search", this::search);
 
+    /**
+     * Initializes a view for searching reservations with the specified managers.
+     *
+     * @param hotelManager the hotel manager providing access to reservation and room services
+     * @param navigationManager the navigation manager for handling view transitions
+     */
     public SearchReservationsView(HotelManager hotelManager, NavigationManager navigationManager) {
         this.hotelManager = hotelManager;
         this.navigationManager = navigationManager;
         this.root = buildView();
     }
 
+    /**
+     * Provides the display title for this view.
+     *
+     * @return the view title
+     */
     @Override
     public String getTitle() {
         return TITLE;
     }
 
+    /**
+     * Provides the root UI component of this view.
+     *
+     * @return The root Node containing the search reservations interface.
+     */
     @Override
     public Node getView() {
         return root;
     }
 
+    /**
+     * Constructs the complete search reservations view UI.
+     *
+     * Sets up all form components including search mode selection radio buttons,
+     * input fields for customer ID and date range, results table, and action
+     * buttons. Applies initial visibility constraints based on the default mode.
+     *
+     * @return the constructed view container
+     */
     private VBox buildView() {
         VBox box = ViewUtils.formContainer(TITLE);
 
@@ -125,10 +150,17 @@ public class SearchReservationsView implements View {
         return box;
     }
 
+    /**
+     * Updates the visibility and enabled state of input fields when the search mode changes.
+     */
     private void onModeChanged(ObservableValue<? extends Toggle> obs, Toggle oldVal, Toggle newVal) {
         applyModeVisibility();
     }
 
+    /**
+     * Enables input fields required by the selected search mode and disables others.
+     * Disabled fields are cleared to prevent stale data in subsequent searches.
+     */
     private void applyModeVisibility() {
         boolean needCustomer = byCustomerRadio.isSelected() || byBothRadio.isSelected();
         boolean needDate = byDateRadio.isSelected() || byBothRadio.isSelected();
@@ -145,6 +177,9 @@ public class SearchReservationsView implements View {
         searchButton.setDisable(false);
     }
 
+    /**
+     * Initializes the reservation table with columns for ID, customer, room, dates, status, and total price.
+     */
     private void setupTable() {
         TableColumn<Reservation, String> idCol = new TableColumn<>("Reservation ID");
         idCol.setCellValueFactory(c -> {
@@ -212,6 +247,11 @@ public class SearchReservationsView implements View {
         tableView.setItems(reservationData);
     }
 
+    /**
+     * Computes the formatted total price for a reservation.
+     *
+     * @return the formatted total price prefixed with a dollar sign
+     */
     private String computeTotal(Reservation reservation) {
         Map<Integer, Double> priceByRoom = new HashMap<>();
         for (Room r : hotelManager.getRoomService().getAllRooms()) {
@@ -221,6 +261,12 @@ public class SearchReservationsView implements View {
         return "$" + reservation.calculateTotalPrice(price);
     }
 
+    /**
+     * Searches for reservations based on the selected search mode and displays results.
+     *
+     * The required inputs vary by mode: customer ID alone, date range alone, or both.
+     * Results are populated in the table with a summary message in the status bar.
+     */
     private void search() {
         try {
             List<Reservation> results;
@@ -277,6 +323,12 @@ public class SearchReservationsView implements View {
         }
     }
 
+    /**
+     * Retrieves a date from the picker, prompting for selection if none exists.
+     *
+     * @param label a description of the date field (e.g., "start" or "end") used in the validation message
+     * @return      the selected date, or null if no date is selected
+     */
     private LocalDate readDate(DatePicker picker, String label) {
         LocalDate date = picker.getValue();
         if (date == null) {
@@ -286,6 +338,10 @@ public class SearchReservationsView implements View {
         return date;
     }
 
+    /**
+     * Restores the interface to its initial state by clearing all inputs, results, and status information.
+     */
+    ```
     private void reset() {
         customerIdField.clear();
         startDatePicker.setValue(null);

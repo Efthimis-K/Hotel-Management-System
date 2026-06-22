@@ -19,22 +19,41 @@ public class RoomManagementMenuView implements View {
     private final NavigationManager navigationManager;
     private final VBox root;
 
+    /**
+     * Initializes the room management menu view.
+     */
+    </code>
     public RoomManagementMenuView(HotelManager hotelManager, NavigationManager navigationManager) {
         this.hotelManager = hotelManager;
         this.navigationManager = navigationManager;
         this.root = buildView();
     }
 
+    /**
+     * Returns the title of the Room Management view.
+     *
+     * @return the title
+     */
     @Override
     public String getTitle() {
         return TITLE;
     }
 
+    /**
+     * Provides the Room Management menu view.
+     *
+     * @return The JavaFX node for the Room Management menu.
+     */
     @Override
     public Node getView() {
         return root;
     }
 
+    /**
+     * Constructs the Room Management menu layout.
+     *
+     * @return a VBox containing the menu with buttons for creating a room, viewing all rooms, viewing available rooms, and returning to the main menu
+     */
     private VBox buildView() {
         VBox box = ViewUtils.menuContainer(
                 TITLE,
@@ -52,14 +71,23 @@ public class RoomManagementMenuView implements View {
         return box;
     }
 
+    /**
+     * Navigates to the room creation view.
+     */
     private void openCreateRoom() {
         navigationManager.navigateTo(new CreateRoomView(hotelManager, navigationManager));
     }
 
+    /**
+     * Navigates to the view displaying all rooms.
+     */
     private void openViewAllRooms() {
         navigationManager.navigateTo(new ViewAllRoomsView(hotelManager, navigationManager));
     }
 
+    /**
+     * Navigates to the view for available rooms.
+     */
     private void openViewAvailableRooms() {
         navigationManager.navigateTo(new ViewAvailableRoomsView(hotelManager, navigationManager));
     }

@@ -39,22 +39,43 @@ public class RegisterCustomerView implements View {
     private final javafx.scene.control.Button submitButton
             = ViewUtils.primaryButton("Register", this::submit);
 
+    /**
+     * Initializes a RegisterCustomerView with the provided dependencies.
+     *
+     * @param hotelManager      the hotel manager service
+     * @param navigationManager the navigation manager service
+     */
     public RegisterCustomerView(HotelManager hotelManager, NavigationManager navigationManager) {
         this.hotelManager = hotelManager;
         this.navigationManager = navigationManager;
         this.root = buildView();
     }
 
+    /**
+     * Provides the title of the Register Customer view.
+     *
+     * @return the view title
+     */
     @Override
     public String getTitle() {
         return TITLE;
     }
 
+    /**
+     * Provides the registration form's visual component.
+     *
+     * @return the root Node of the registration form
+     */
     @Override
     public Node getView() {
         return root;
     }
 
+    /**
+     * Constructs the registration form UI.
+     *
+     * @return the root VBox containing the complete registration form
+     */
     private VBox buildView() {
         VBox box = ViewUtils.formContainer(TITLE);
 
@@ -96,10 +117,18 @@ public class RegisterCustomerView implements View {
         return box;
     }
 
+    /**
+     * Updates the submit button's enabled state based on form validation.
+     */
     private void updateSubmitState() {
         submitButton.setDisable(!isValid());
     }
 
+    /**
+     * Determines if all form fields contain valid data.
+     *
+     * @return {@code true} if all form fields contain valid data, {@code false} otherwise
+     */
     private boolean isValid() {
         if (customerIdField.getText().isBlank()) {
             return false;
@@ -120,6 +149,9 @@ public class RegisterCustomerView implements View {
         return true;
     }
 
+    /**
+     * Registers a new customer from form input, validating against existing customer IDs and updating the status display.
+     */
     private void submit() {
         String id = customerIdField.getText().trim();
         if (hotelManager.getCustomerById(id).isPresent()) {
@@ -148,6 +180,9 @@ public class RegisterCustomerView implements View {
         }
     }
 
+    /**
+     * Clears all form fields and restores focus to the customer ID field.
+     */
     private void clear() {
         customerIdField.clear();
         firstNameField.clear();

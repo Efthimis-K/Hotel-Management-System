@@ -20,6 +20,10 @@ public class Customer {
     private static final EmailValidator EMAIL_VALIDATOR = EmailValidator.getInstance();
     private static final Pattern PHONE_PATTERN = Pattern.compile("^[+]?[0-9]{7,15}$");
 
+    /**
+     * Creates a new Customer instance.
+     */
+    ```
     public Customer() {
     }
 
@@ -91,6 +95,11 @@ public class Customer {
         return firstName + " " + lastName;
     }
 
+    /**
+     * Determines if two Customer objects represent the same customer based on their ID.
+     *
+     * @return {@code true} if the other object is a Customer with the same customer ID, {@code false} otherwise
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {

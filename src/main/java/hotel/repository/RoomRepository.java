@@ -20,9 +20,21 @@ public class RoomRepository {
     public RoomRepository() {
     }
 
+    /**
+     * Creates a new RoomRepository.
+     *
+     * @param availabilityUpdater a callback for room availability updates
+     */
     public RoomRepository(Consumer<Room> availabilityUpdater) {
     }
 
+    /**
+     * Persists a new room to the database.
+     *
+     * @param room the room to add
+     * @throws DuplicateResourceException if a room with the same number already exists
+     * @throws StorageException if a database error occurs
+     */
     public void addRoom(Room room) {
         String sql = "INSERT INTO rooms (room_number, room_type, price_per_night, is_available) VALUES (?, ?, ?, ?)";
         Connection conn = DatabaseManager.getInstance().getConnection();
@@ -40,6 +52,12 @@ public class RoomRepository {
         }
     }
 
+    /**
+     * Retrieves all rooms from the database.
+     *
+     * @return a list of all Room entities
+     * @throws StorageException if a database error occurs
+     */
     public List<Room> getAllRooms() {
         List<Room> rooms = new ArrayList<>();
         String sql = "SELECT room_number, room_type, price_per_night, is_available FROM rooms";
@@ -54,6 +72,12 @@ public class RoomRepository {
         return rooms;
     }
 
+    /**
+     * Retrieves a room by its number.
+     *
+     * @return an Optional containing the Room if found, or an empty Optional if no room exists with that number
+     * @throws StorageException if a database error occurs
+     */
     public Optional<Room> getRoomByNumber(int roomNumber) {
         String sql = "SELECT room_number, room_type, price_per_night, is_available FROM rooms WHERE room_number = ?";
         Connection conn = DatabaseManager.getInstance().getConnection();
@@ -70,6 +94,13 @@ public class RoomRepository {
         return Optional.empty();
     }
 
+    /**
+     * Updates an existing room.
+     *
+     * @param room the room with updated details
+     * @throws ResourceNotFoundException if no room with the specified number exists
+     * @throws StorageException if a database error occurs
+     */
     public void updateRoom(Room room) {
         String sql = "UPDATE rooms SET room_type = ?, price_per_night = ?, is_available = ? WHERE room_number = ?";
         Connection conn = DatabaseManager.getInstance().getConnection();
@@ -87,6 +118,13 @@ public class RoomRepository {
         }
     }
 
+    /**
+     * Deletes a room from the database by its room number.
+     *
+     * @param roomNumber the room number to delete
+     * @throws ResourceNotFoundException if no room with the given number exists
+     * @throws StorageException if a database error occurs
+     */
     public void deleteRoom(int roomNumber) {
         String sql = "DELETE FROM rooms WHERE room_number = ?";
         Connection conn = DatabaseManager.getInstance().getConnection();
@@ -101,6 +139,11 @@ public class RoomRepository {
         }
     }
 
+    /**
+     * Retrieves all rooms that are currently available.
+     *
+     * @return a list of all available rooms
+     */
     public List<Room> getAvailableRooms() {
         List<Room> rooms = new ArrayList<>();
         String sql = "SELECT room_number, room_type, price_per_night, is_available FROM rooms WHERE is_available = 1";
@@ -115,6 +158,13 @@ public class RoomRepository {
         return rooms;
     }
 
+    /**
+     * Converts the current row of a ResultSet to a Room object.
+     *
+     * @param  rs the ResultSet positioned at the row to convert
+     * @return    a Room populated from the current result set row
+     * @throws SQLException if a database access error occurs
+     */
     private Room mapRoom(ResultSet rs) throws SQLException {
         Room room = new Room();
         room.setRoomNumber(rs.getInt("room_number"));

@@ -14,9 +14,17 @@ import javafx.scene.Node;
  * {@link ViewUtils#statusBar}.
  */
 public interface View {
-    /** @return the title of this view for the breadcrumb. */
+    /**
+ * Retrieves the title of this view for display in the breadcrumb.
+ *
+ * @return the title of this view
+ */
     String getTitle();
 
-    /** @return the root node of this view, displayed in the main window's center. */
+    /**
+ * Provides the root JavaFX node of this view.
+ *
+ * @return the root node to be displayed in the main window's center
+ */
     Node getView();
 }

@@ -38,13 +38,13 @@ public class NavigationManager {
     private record Entry(Node node, String title) {}
 
     /**
-     * @param root           the main {@link BorderPane} whose center will be
-     *                       swapped on every navigation.
-     * @param breadcrumbLabel the label used to render the current location
-     *                        (e.g. "Main Menu \u203A Room Management").
-     * @param backButton     the persistent Back button in the navigation bar.
-     * @param forwardButton  the persistent Forward button in the navigation bar.
-     * @param homeButton     the persistent Home button in the navigation bar.
+     * Initializes a navigation manager that controls a JavaFX GUI's center content and maintains browsing history.
+     *
+     * @param root           the BorderPane whose center is replaced on navigation
+     * @param breadcrumbLabel the label displaying the current location
+     * @param backButton     the persistent Back button that navigates to the previous view
+     * @param forwardButton  the persistent Forward button that navigates to the next view
+     * @param homeButton     the persistent Home button that navigates to the first viewed location
      */
     public NavigationManager(BorderPane root,
                              Label breadcrumbLabel,
@@ -84,15 +84,17 @@ public class NavigationManager {
     }
 
     /**
-     * Convenience overload for {@link View} instances. Uses the view's
-     * {@link View#getTitle()} for the breadcrumb and {@link View#getView()}
-     * for the content.
+     * Navigates to the specified view.
+     *
+     * @param view the view to navigate to
      */
     public void navigateTo(View view) {
         navigateTo(view.getView(), view.getTitle());
     }
 
-    /** Pop the back stack and display the previous view. No-op if empty. */
+    /**
+     * Navigates to the previous view. No-op if no back history is available.
+     */
     public void goBack() {
         if (backStack.isEmpty()) {
             return;
@@ -107,7 +109,10 @@ public class NavigationManager {
         show(previous.node(), previous.title());
     }
 
-    /** Pop the forward stack and display the next view. No-op if empty. */
+    /**
+     * Navigates to the next view in forward history.
+     */
+    ```
     public void goForward() {
         if (forwardStack.isEmpty()) {
             return;
@@ -122,8 +127,11 @@ public class NavigationManager {
     }
 
     /**
-     * Return to the home view (the first view that was displayed). Clears the
-     * forward stack.
+     * Navigate to the home view (the first view displayed).
+     *
+     * If back history is empty, this method has no effect. After navigating home,
+     * the back history is cleared and the forward history is updated to reflect
+     * the original navigation sequence.
      */
     public void goHome() {
         if (backStack.isEmpty()) {
@@ -163,19 +171,28 @@ public class NavigationManager {
         updateNavButtons();
     }
 
+    /**
+     * Updates the displayed view, breadcrumb label, and navigation button states.
+     */
     private void show(Node view, String title) {
         root.setCenter(view);
         breadcrumbLabel.setText(title);
         updateNavButtons();
     }
 
+    /**
+     * Updates the enabled state of back and forward buttons based on available history.
+     */
     private void updateNavButtons() {
         backButton.setDisable(backStack.isEmpty());
         forwardButton.setDisable(forwardStack.isEmpty());
     }
 
     /**
-     * Convenience: build the standard top breadcrumb bar.
+     * Creates a styled breadcrumb bar containing a label.
+     *
+     * @param breadcrumbLabel the label to display in the breadcrumb bar
+     * @return an HBox configured as a breadcrumb bar
      */
     public static HBox createBreadcrumbBar(Label breadcrumbLabel) {
         breadcrumbLabel.getStyleClass().add("breadcrumb-label");
@@ -186,7 +203,9 @@ public class NavigationManager {
     }
 
     /**
-     * Convenience: build the standard bottom navigation bar (Home / Back / Forward).
+     * Creates a navigation bar containing the specified Home, Back, and Forward buttons.
+     *
+     * @return an HBox containing the configured navigation buttons
      */
     public static HBox createNavBar(Button homeButton, Button backButton, Button forwardButton) {
         homeButton.setText("Home");
@@ -202,7 +221,11 @@ public class NavigationManager {
         return bar;
     }
 
-    /** Separator used in breadcrumb rendering. Exposed for views that want to compose their own title. */
+    /**
+     * Provides the breadcrumb separator string.
+     *
+     * @return the breadcrumb separator string
+     */
     public static String separator() {
         return SEPARATOR;
     }

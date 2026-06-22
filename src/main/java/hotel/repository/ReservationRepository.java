@@ -17,6 +17,13 @@ import hotel.storage.DatabaseManager;
 
 public class ReservationRepository {
 
+    /**
+     * Stores a reservation in the database.
+     *
+     * @param reservation the reservation to add
+     * @throws DuplicateResourceException if a reservation with the same ID already exists
+     * @throws StorageException if a database error occurs
+     */
     public void addReservation(Reservation reservation) {
         String sql = "INSERT INTO reservations (reservation_id, customer_id, room_number, check_in_date, check_out_date, status) VALUES (?, ?, ?, ?, ?, ?)";
         Connection conn = DatabaseManager.getInstance().getConnection();
@@ -36,6 +43,12 @@ public class ReservationRepository {
         }
     }
 
+    /**
+     * Retrieves all reservations from the database.
+     *
+     * @return a list of all reservations
+     * @throws StorageException if a database access error occurs
+     */
     public List<Reservation> getAllReservations() {
         List<Reservation> reservations = new ArrayList<>();
         String sql = "SELECT reservation_id, customer_id, room_number, check_in_date, check_out_date, status FROM reservations";
@@ -50,6 +63,13 @@ public class ReservationRepository {
         return reservations;
     }
 
+    /**
+     * Retrieves the reservation with the specified ID.
+     *
+     * @param reservationId the ID of the reservation to retrieve
+     * @return an Optional containing the reservation if found, or empty if the reservation does not exist or if the ID is null
+     * @throws StorageException if a database error occurs
+     */
     public Optional<Reservation> getReservationById(String reservationId) {
         if (reservationId == null) {
             return Optional.empty();
@@ -69,6 +89,13 @@ public class ReservationRepository {
         return Optional.empty();
     }
 
+    /**
+     * Updates an existing reservation with the provided information.
+     *
+     * @param reservation the reservation object containing the updated information
+     * @throws ResourceNotFoundException if no reservation with the given ID exists
+     * @throws StorageException if a database error occurs
+     */
     public void updateReservation(Reservation reservation) {
         String sql = "UPDATE reservations SET customer_id = ?, room_number = ?, check_in_date = ?, check_out_date = ?, status = ? WHERE reservation_id = ?";
         Connection conn = DatabaseManager.getInstance().getConnection();
@@ -88,6 +115,13 @@ public class ReservationRepository {
         }
     }
 
+    /**
+     * Deletes a reservation from storage by ID.
+     *
+     * @param reservationId the ID of the reservation to delete
+     * @throws ResourceNotFoundException if no reservation with the given ID exists
+     * @throws StorageException if a database error occurs
+     */
     public void deleteReservation(String reservationId) {
         String sql = "DELETE FROM reservations WHERE reservation_id = ?";
         Connection conn = DatabaseManager.getInstance().getConnection();
@@ -102,6 +136,13 @@ public class ReservationRepository {
         }
     }
 
+    /**
+     * Retrieves all reservations associated with a specific customer.
+     *
+     * @param customerId the customer's ID
+     * @return a list of reservations for the customer, or an empty list if customerId is null
+     * @throws StorageException if a database error occurs
+     */
     public List<Reservation> getReservationsByCustomer(String customerId) {
         if (customerId == null) {
             return new ArrayList<>();
@@ -122,6 +163,13 @@ public class ReservationRepository {
         return reservations;
     }
 
+    /**
+     * Retrieves all reservations for a specific room.
+     *
+     * @param roomNumber the room number to search by
+     * @return a list of reservations for the room
+     * @throws StorageException if a database error occurs
+     */
     public List<Reservation> getReservationsByRoom(int roomNumber) {
         List<Reservation> reservations = new ArrayList<>();
         String sql = "SELECT reservation_id, customer_id, room_number, check_in_date, check_out_date, status FROM reservations WHERE room_number = ?";
@@ -139,6 +187,11 @@ public class ReservationRepository {
         return reservations;
     }
 
+    /**
+     * Retrieves all active reservations.
+     *
+     * @return A list of reservations with status CONFIRMED or PENDING.
+     */
     public List<Reservation> getActiveReservations() {
         List<Reservation> reservations = new ArrayList<>();
         String sql = "SELECT reservation_id, customer_id, room_number, check_in_date, check_out_date, status FROM reservations WHERE status IN ('CONFIRMED', 'PENDING')";
@@ -153,6 +206,12 @@ public class ReservationRepository {
         return reservations;
     }
 
+    /**
+     * Converts a database result set row into a Reservation object.
+     *
+     * @return a Reservation object populated from the result set row
+     * @throws SQLException if a database access error occurs
+     */
     private Reservation mapReservation(ResultSet rs) throws SQLException {
         // Use no-arg constructor + setters to bypass the past-date validation
         // in the 5-arg constructor — existing DB data may have past dates.

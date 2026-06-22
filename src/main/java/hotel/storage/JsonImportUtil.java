@@ -22,6 +22,12 @@ public class JsonImportUtil {
         objectMapper.registerModule(new JavaTimeModule());
     }
 
+    /**
+     * Imports customer data from a JSON file into the database.
+     *
+     * @param customersFile the JSON file containing customer data
+     * @throws Exception if JSON parsing fails or if all customer imports fail
+     */
     public static void importCustomers(File customersFile) throws Exception {
         List<hotel.model.Customer> customers = objectMapper.readValue(
                 customersFile, new TypeReference<List<hotel.model.Customer>>() {
@@ -50,6 +56,13 @@ public class JsonImportUtil {
         }
     }
 
+    /**
+     * Migrates rooms from a JSON file into the database.
+     *
+     * @param roomsFile the JSON file containing room data
+     * @throws Exception if the JSON file cannot be parsed
+     * @throws RuntimeException if all room imports fail
+     */
     public static void importRooms(File roomsFile) throws Exception {
         List<hotel.model.Room> rooms = objectMapper.readValue(
                 roomsFile, new TypeReference<List<hotel.model.Room>>() {
@@ -78,6 +91,16 @@ public class JsonImportUtil {
         }
     }
 
+    /**
+     * Migrates reservation data from a JSON file into the database.
+     *
+     * <p>Deserializes the provided JSON file into a list of reservations and attempts to insert
+     * each one. Individual insertion failures are logged and do not halt the import process.
+     *
+     * @param reservationsFile a JSON file containing an array of reservation objects
+     * @throws Exception if JSON deserialization fails
+     * @throws RuntimeException if all reservation imports fail
+     */
     public static void importReservations(File reservationsFile) throws Exception {
         List<hotel.model.Reservation> reservations = objectMapper.readValue(
                 reservationsFile, new TypeReference<List<hotel.model.Reservation>>() {
@@ -106,6 +129,11 @@ public class JsonImportUtil {
         }
     }
 
+    /**
+     * Inserts a customer record into the database, silently ignoring duplicates.
+     *
+     * @throws SQLException if a database error occurs
+     */
     private static void insertCustomer(java.sql.Connection conn, hotel.model.Customer customer) throws SQLException {
         String sql = "INSERT OR IGNORE INTO customers (customer_id, first_name, last_name, email, phone_number) VALUES (?, ?, ?, ?, ?)";
         try (var stmt = conn.prepareStatement(sql)) {
@@ -118,6 +146,11 @@ public class JsonImportUtil {
         }
     }
 
+    /**
+     * Inserts a room record into the database, ignoring duplicates.
+     *
+     * @throws SQLException if a database error occurs
+     */
     private static void insertRoom(java.sql.Connection conn, hotel.model.Room room) throws SQLException {
         String sql = "INSERT OR IGNORE INTO rooms (room_number, room_type, price_per_night, is_available) VALUES (?, ?, ?, ?)";
         try (var stmt = conn.prepareStatement(sql)) {
@@ -129,6 +162,13 @@ public class JsonImportUtil {
         }
     }
 
+    /**
+     * Inserts a reservation record into the database, ignoring any duplicate key conflicts.
+     *
+     * @param conn the database connection
+     * @param reservation the reservation to insert
+     * @throws SQLException if a database access error occurs
+     */
     private static void insertReservation(java.sql.Connection conn, hotel.model.Reservation reservation) throws SQLException {
         String sql = "INSERT OR IGNORE INTO reservations (reservation_id, customer_id, room_number, check_in_date, check_out_date, status) VALUES (?, ?, ?, ?, ?, ?)";
         try (var stmt = conn.prepareStatement(sql)) {
