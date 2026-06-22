@@ -73,6 +73,7 @@ public class DatabaseInitializer {
         var conn = DatabaseManager.getInstance().getConnection();
         try (var stmt = conn.createStatement(); var rs = stmt.executeQuery(
                 "SELECT (SELECT COUNT(*) FROM customers) + (SELECT COUNT(*) FROM rooms) + (SELECT COUNT(*) FROM reservations) AS total")) {
+            rs.next();
             return rs.getLong("total") > 0;
         } catch (SQLException e) {
             LOGGER.warning("Could not check if data is already imported: " + e.getMessage());
@@ -100,6 +101,7 @@ public class DatabaseInitializer {
         long count = 0;
         try (var stmt = conn.createStatement()) {
             var rs = stmt.executeQuery("SELECT COUNT(*) FROM schema_version");
+            rs.next();
             count = rs.getLong(1);
         }
 
