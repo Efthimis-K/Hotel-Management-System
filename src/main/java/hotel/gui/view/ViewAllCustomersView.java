@@ -26,6 +26,12 @@ public class ViewAllCustomersView implements View {
     private final ObservableList<Customer> customerData = FXCollections.observableArrayList();
     private final TableView<Customer> tableView = new TableView<>();
 
+    /**
+     * Initializes the view with the specified managers and loads the initial customer list.
+     *
+     * @param hotelManager the manager providing access to customer data
+     * @param navigationManager the manager for navigation operations
+     */
     public ViewAllCustomersView(HotelManager hotelManager, NavigationManager navigationManager) {
         this.hotelManager = hotelManager;
         this.navigationManager = navigationManager;
@@ -33,16 +39,31 @@ public class ViewAllCustomersView implements View {
         refresh();
     }
 
+    /**
+     * Gets the title of this view.
+     *
+     * @return the view title
+     */
     @Override
     public String getTitle() {
         return TITLE;
     }
 
+    /**
+     * Provides the root node for this view.
+     *
+     * @return the root JavaFX node for display
+     */
     @Override
     public Node getView() {
         return root;
     }
 
+    /**
+     * Constructs the UI layout containing the customer table and refresh button.
+     *
+     * @return a VBox with the customer table and refresh controls
+     */
     private VBox buildView() {
         VBox box = ViewUtils.listContainer(TITLE);
         setupTable();
@@ -54,6 +75,9 @@ public class ViewAllCustomersView implements View {
         return box;
     }
 
+    /**
+     * Configures the customer table columns and binds the customer data to the table view.
+     */
     private void setupTable() {
         TableColumn<Customer, String> idCol = new TableColumn<>("Customer ID");
         idCol.setCellValueFactory(c -> {
@@ -94,6 +118,9 @@ public class ViewAllCustomersView implements View {
         tableView.setItems(customerData);
     }
 
+    /**
+     * Refreshes the displayed customer data by fetching the current list from the hotel manager.
+     */
     private void refresh() {
         customerData.setAll(hotelManager.getAllCustomers());
     }

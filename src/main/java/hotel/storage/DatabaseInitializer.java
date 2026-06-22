@@ -21,6 +21,9 @@ public class DatabaseInitializer {
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     private static final String DATA_DIR = "data";
 
+    /**
+     * Initializes the database schema and imports data from JSON files if the database is new or empty.
+     */
     public static void initialize() {
         File dbFile = new File(DATA_DIR, "hotel.db");
         File customersJson = new File(DATA_DIR, "customers.json");
@@ -73,8 +76,10 @@ public class DatabaseInitializer {
     }
 
     /**
-     * Checks whether the database already contains data. Used to avoid
-     * re-importing JSON data on every startup.
+     * Determines whether the database already contains imported data.
+     *
+     * @return {@code true} if the database contains at least one record across all tables,
+     *         {@code false} otherwise
      */
     private static boolean isDataAlreadyImported() {
         var conn = DatabaseManager.getInstance().getConnection();
@@ -87,6 +92,15 @@ public class DatabaseInitializer {
         }
     }
 
+    /**
+     * Initializes the database schema with required tables, indexes, and constraints.
+     *
+     * <p>Creates the schema_version, customers, rooms, and reservations tables with
+     * appropriate constraints and indexes. Enables foreign key enforcement and initializes
+     * the schema version table if empty.
+     *
+     * @throws SQLException if a database error occurs during schema creation
+     */
     private static void initSchema() throws SQLException {
         var conn = DatabaseManager.getInstance().getConnection();
         // Enable foreign key constraints

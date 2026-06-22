@@ -17,22 +17,43 @@ public class ReservationManagementMenuView implements View {
     private final NavigationManager navigationManager;
     private final VBox root;
 
+    /**
+     * Initializes a reservation management menu view with the specified managers.
+     *
+     * @param hotelManager     the hotel manager
+     * @param navigationManager the navigation manager
+     */
     public ReservationManagementMenuView(HotelManager hotelManager, NavigationManager navigationManager) {
         this.hotelManager = hotelManager;
         this.navigationManager = navigationManager;
         this.root = buildView();
     }
 
+    /**
+     * Provides the title of the reservation management menu view.
+     *
+     * @return The view's title.
+     */
     @Override
     public String getTitle() {
         return TITLE;
     }
 
+    /**
+     * Provides the root UI component of the reservation management menu.
+     *
+     * @return the root Node
+     */
     @Override
     public Node getView() {
         return root;
     }
 
+    /**
+     * Constructs the reservation management menu interface.
+     *
+     * @return the menu container displaying reservation operation options
+     */
     private VBox buildView() {
         VBox box = ViewUtils.menuContainer(
                 TITLE,
@@ -51,18 +72,31 @@ public class ReservationManagementMenuView implements View {
         return box;
     }
 
+    /**
+     * Navigates to the create reservation view.
+     */
     private void openCreateReservation() {
         navigationManager.navigateTo(new CreateReservationView(hotelManager, navigationManager));
     }
 
+    /**
+     * Navigates to the cancel reservation view.
+     */
     private void openCancelReservation() {
         navigationManager.navigateTo(new CancelReservationView(hotelManager, navigationManager));
     }
 
+    /**
+     * Navigates to the search reservations view.
+     */
+    ```
     private void openSearchReservations() {
         navigationManager.navigateTo(new SearchReservationsView(hotelManager, navigationManager));
     }
 
+    /**
+     * Navigates to the Check Availability view.
+     */
     private void openCheckAvailability() {
         navigationManager.navigateTo(new CheckAvailabilityView(hotelManager, navigationManager));
     }

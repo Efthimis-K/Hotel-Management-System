@@ -54,22 +54,40 @@ public class CheckAvailabilityView implements View {
     private final javafx.scene.control.Button checkButton
             = ViewUtils.primaryButton("Check", this::check);
 
+    /**
+     * Initializes the Check Availability view with required service dependencies.
+     */
     public CheckAvailabilityView(HotelManager hotelManager, NavigationManager navigationManager) {
         this.hotelManager = hotelManager;
         this.navigationManager = navigationManager;
         this.root = buildView();
     }
 
+    /**
+     * Provides the title of this view.
+     *
+     * @return the view title
+     */
     @Override
     public String getTitle() {
         return TITLE;
     }
 
+    /**
+     * Provides the visual component for the check availability interface.
+     *
+     * @return The root container node.
+     */
     @Override
     public Node getView() {
         return root;
     }
 
+    /**
+     * Constructs the layout for the check availability form.
+     *
+     * @return the root container with all configured UI components
+     */
     private VBox buildView() {
         VBox box = ViewUtils.formContainer(TITLE);
 
@@ -110,6 +128,10 @@ public class CheckAvailabilityView implements View {
         return box;
     }
 
+    /**
+     * Synchronizes the room number field state with the selected availability check mode.
+     */
+    ```
     private void updateMode() {
         roomNumberField.setDisable(allRoomsRadio.isSelected());
         if (allRoomsRadio.isSelected()) {
@@ -117,6 +139,9 @@ public class CheckAvailabilityView implements View {
         }
     }
 
+    /**
+     * Initializes the table view with columns for room number, type, and price per night.
+     */
     private void setupTable() {
         TableColumn<Room, Integer> roomNumberCol = new TableColumn<>("Room Number");
         roomNumberCol.setCellValueFactory(c -> {
@@ -207,6 +232,15 @@ public class CheckAvailabilityView implements View {
         }
     }
 
+    /**
+     * Retrieves a date from the picker, validating that a selection was made.
+     *
+     * If no date is selected, displays a warning status message and returns {@code null}.
+     *
+     * @param label a descriptive label for the date (e.g., "check-in", "check-out"),
+     *              used in the validation warning message
+     * @return      the selected date, or {@code null} if no date was selected
+     */
     private LocalDate readDate(DatePicker picker, String label) {
         LocalDate date = picker.getValue();
         if (date == null) {

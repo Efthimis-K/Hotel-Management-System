@@ -14,10 +14,20 @@ public class DatabaseManager {
     private static DatabaseManager instance;
     private Connection connection;
 
+    /**
+     * Prevents instantiation from outside the class to enforce the singleton pattern.
+     */
+    ```
     private DatabaseManager() {
         // Private constructor for singleton
     }
 
+    /**
+     * Retrieves the singleton DatabaseManager instance.
+     *
+     * @return the singleton instance of DatabaseManager
+     */
+    ```
     public static synchronized DatabaseManager getInstance() {
         if (instance == null) {
             instance = new DatabaseManager();
@@ -25,6 +35,16 @@ public class DatabaseManager {
         return instance;
     }
 
+    /**
+     * Retrieves or lazily initializes the singleton database connection.
+     *
+     * On the first invocation, creates a new SQLite connection and enables
+     * foreign key constraint enforcement. Subsequent calls return the cached
+     * connection.
+     *
+     * @return the SQLite database connection
+     * @throws RuntimeException if the connection cannot be established
+     */
     public synchronized Connection getConnection() {
         if (connection == null) {
             try {
@@ -40,6 +60,9 @@ public class DatabaseManager {
         return connection;
     }
 
+    /**
+     * Closes the database connection and releases its resources.
+     */
     public synchronized void closeConnection() {
         if (connection != null) {
             try {
@@ -52,7 +75,7 @@ public class DatabaseManager {
     }
 
     /**
-     * Explicitly close the connection to release resources.
+     * Closes the database connection of the singleton instance.
      */
     public static synchronized void shutdown() {
         if (instance != null && instance.connection != null) {

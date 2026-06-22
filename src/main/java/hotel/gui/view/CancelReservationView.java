@@ -32,6 +32,9 @@ public class CancelReservationView implements View {
     private final javafx.scene.control.Button submitButton =
             ViewUtils.dangerButton("Cancel Reservation", this::submit);
 
+    /**
+     * Initializes the Cancel Reservation view with the specified service dependencies.
+     */
     public CancelReservationView(HotelManager hotelManager, NavigationManager navigationManager) {
         this.hotelManager = hotelManager;
         this.navigationManager = navigationManager;
@@ -43,11 +46,21 @@ public class CancelReservationView implements View {
         return TITLE;
     }
 
+    /**
+     * Provides the root JavaFX node of this view.
+     *
+     * @return the root Node
+     */
     @Override
     public Node getView() {
         return root;
     }
 
+    /**
+     * Constructs and assembles the cancel reservation form view.
+     *
+     * @return the assembled form view container
+     */
     private VBox buildView() {
         VBox box = ViewUtils.formContainer(TITLE);
 
@@ -71,6 +84,9 @@ public class CancelReservationView implements View {
         return box;
     }
 
+    /**
+     * Attempts to cancel the reservation and provides inline feedback.
+     */
     private void submit() {
         String id = reservationIdField.getText().trim();
         try {
@@ -84,6 +100,9 @@ public class CancelReservationView implements View {
         }
     }
 
+    /**
+     * Clears the reservation ID input field and resets the status display.
+     */
     private void clear() {
         reservationIdField.clear();
         ViewUtils.setStatus(status, null, ViewUtils.StatusKind.INFO);

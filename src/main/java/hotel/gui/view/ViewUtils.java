@@ -47,8 +47,10 @@ public final class ViewUtils {
     }
 
     /**
-     * Build a standard "form view" container. Children are typically a
-     * {@code GridPane} (added by the caller) and a status bar.
+     * Creates a form view container with an optional title.
+     *
+     * @param title the title to display, or null/empty to omit
+     * @return a configured form view container
      */
     public static VBox formContainer(String title) {
         VBox box = new VBox(10);
@@ -62,7 +64,9 @@ public final class ViewUtils {
     }
 
     /**
-     * Build a standard "list view" container with a title.
+     * Creates a list view container, optionally with a title.
+     *
+     * @return A VBox configured as a list view.
      */
     public static VBox listContainer(String title) {
         VBox box = new VBox(10);
@@ -87,7 +91,7 @@ public final class ViewUtils {
     }
 
     /**
-     * Create a "danger" menu-style button (red border).
+     * Creates a menu button with danger styling.
      */
     public static Button dangerMenuButton(String text, Runnable onClick) {
         Button btn = menuButton(text, onClick);
@@ -96,7 +100,9 @@ public final class ViewUtils {
     }
 
     /**
-     * Create a primary form button (green).
+     * Creates a button with primary styling.
+     *
+     * @return the button
      */
     public static Button primaryButton(String text, Runnable onClick) {
         Button btn = new Button(text);
@@ -106,7 +112,9 @@ public final class ViewUtils {
     }
 
     /**
-     * Create a secondary form button (gray).
+     * Creates a secondary button.
+     *
+     * @return the constructed button
      */
     public static Button secondaryButton(String text, Runnable onClick) {
         Button btn = new Button(text);
@@ -116,7 +124,11 @@ public final class ViewUtils {
     }
 
     /**
-     * Create a danger form button (red).
+     * Creates a button styled for dangerous operations.
+     *
+     * @param text    the button's display text
+     * @param onClick the action to execute when clicked
+     * @return        a button with danger styling
      */
     public static Button dangerButton(String text, Runnable onClick) {
         Button btn = new Button(text);
@@ -126,9 +138,9 @@ public final class ViewUtils {
     }
 
     /**
-     * Create an empty status bar {@link Label} that can be styled and
-     * updated. The label is initially hidden (no text, not visible).
-     * Use {@link #setStatus(Label, String, StatusKind)} to populate it.
+     * Creates a status bar label.
+     *
+     * @return a {@code Label} configured as a status bar
      */
     public static Label statusBar() {
         Label label = new Label();
@@ -142,8 +154,7 @@ public final class ViewUtils {
     public enum StatusKind { INFO, SUCCESS, ERROR, WARNING }
 
     /**
-     * Set the text and style of a status bar label. The label is automatically
-     * shown (or hidden if text is null/blank).
+     * Updates the status label with the provided text and applies a style based on the given status kind. The label is automatically hidden if the text is null or blank, and shown otherwise.
      */
     public static void setStatus(Label status, String text, StatusKind kind) {
         status.getStyleClass().removeAll(
@@ -173,8 +184,9 @@ public final class ViewUtils {
     }
 
     /**
-     * Build a horizontal button row with the given buttons, right-aligned.
-     * Returns an {@link HBox} ready to add to a form.
+     * Creates a right-aligned horizontal row containing the given nodes.
+     *
+     * @return an HBox with the nodes arranged right-aligned
      */
     public static HBox buttonRow(Node... buttons) {
         Region spacer = new Region();
@@ -199,7 +211,13 @@ public final class ViewUtils {
         }
     }
 
-    /** Small helper to add consistent insets to a child inside a container. */
+    /**
+     * Applies the specified padding to the node if it is a Region.
+     *
+     * @param node the node to apply padding to
+     * @param insets the padding to apply
+     * @return the input node
+     */
     public static <T extends Node> T withInsets(T node, Insets insets) {
         if (node instanceof javafx.scene.layout.Region r) {
             r.setPadding(insets);

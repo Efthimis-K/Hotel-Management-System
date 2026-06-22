@@ -28,6 +28,12 @@ public class ViewAllRoomsView implements View {
     private final ObservableList<Room> roomData = FXCollections.observableArrayList();
     private final TableView<Room> tableView = new TableView<>();
 
+    /**
+     * Constructs a read-only view displaying all hotel rooms.
+     *
+     * @param hotelManager      provides access to room data
+     * @param navigationManager manager for navigation between views
+     */
     public ViewAllRoomsView(HotelManager hotelManager, NavigationManager navigationManager) {
         this.hotelManager = hotelManager;
         this.navigationManager = navigationManager;
@@ -35,16 +41,31 @@ public class ViewAllRoomsView implements View {
         refresh();
     }
 
+    /**
+     * Returns the title of this view.
+     *
+     * @return the view title
+     */
     @Override
     public String getTitle() {
         return TITLE;
     }
 
+    /**
+     * Provides the root node of the view.
+     *
+     * @return the root VBox containing the view hierarchy
+     */
     @Override
     public Node getView() {
         return root;
     }
 
+    /**
+     * Builds the main user interface for the view.
+     *
+     * @return the root view container
+     */
     private VBox buildView() {
         VBox box = ViewUtils.listContainer(TITLE);
         setupTable();
@@ -56,6 +77,9 @@ public class ViewAllRoomsView implements View {
         return box;
     }
 
+    /**
+     * Configures the table view with columns for room number, type, price per night, and availability, and binds the table to the room data source.
+     */
     private void setupTable() {
         TableColumn<Room, Integer> roomNumberCol = new TableColumn<>("Room Number");
         roomNumberCol.setCellValueFactory(cellData -> {
@@ -96,6 +120,9 @@ public class ViewAllRoomsView implements View {
         tableView.setItems(roomData);
     }
 
+    /**
+     * Refreshes the table with the latest room data from the service.
+     */
     private void refresh() {
         roomData.setAll(hotelManager.getRoomService().getAllRooms());
     }

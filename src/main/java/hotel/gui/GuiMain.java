@@ -34,6 +34,17 @@ public class GuiMain extends Application {
     private NavigationManager navigationManager;
     private static final String HOME_TITLE = "Main Menu";
 
+    /**
+     * Initializes and displays the hotel management system's graphical user interface.
+     *
+     * Sets up the application window with a BorderPane layout containing a breadcrumb bar
+     * at the top, a navigation bar at the bottom, and a dynamic center area for content.
+     * Initializes repositories, creates the HotelManager, and loads the initial MainMenuView.
+     * Applies the GUI stylesheet and displays the window. If an error occurs during startup,
+     * displays a fatal error dialog.
+     *
+     * @param primaryStage the primary window for the application
+     */
     @Override
     public void start(Stage primaryStage) {
         try {
@@ -71,6 +82,9 @@ public class GuiMain extends Application {
         }
     }
 
+    /**
+     * Initializes the hotel management system's data repositories and service layer.
+     */
     private void initializeRepositories() {
         RoomRepository roomRepository = new RoomRepository();
         ReservationRepository reservationRepository = new ReservationRepository();
@@ -91,6 +105,11 @@ public class GuiMain extends Application {
         alert.showAndWait();
     }
 
+    /**
+     * Applies the gui.css stylesheet to the given scene if the resource is found.
+     *
+     * @param scene the scene to apply the stylesheet to
+     */
     private void applyStylesheet(Scene scene) {
         String css = GuiMain.class.getResource("gui.css") != null
                 ? GuiMain.class.getResource("gui.css").toExternalForm()
@@ -101,13 +120,19 @@ public class GuiMain extends Application {
     }
 
     /**
-     * Exposed for views that need the centralized error renderer (status bar).
-     * Centralized here so all views share the same error-handling convention.
+     * Formats an error using centralized error handling.
+     *
+     * @param  t      the throwable to format
+     * @param  logger the logger to use for error handling
+     * @return        a formatted error message string
      */
     public static String renderError(Throwable t, java.util.logging.Logger logger) {
         return ErrorHandler.handle(t, logger);
     }
 
+    /**
+     * Launches the Hotel Management System application.
+     */
     public static void main(String[] args) {
         launch(args);
     }

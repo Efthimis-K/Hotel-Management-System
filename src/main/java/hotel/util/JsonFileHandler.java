@@ -40,6 +40,12 @@ public class JsonFileHandler {
         final FileLock lock;
         final RandomAccessFile raf;
 
+        /**
+         * Creates a lock handle that pairs a file lock with its underlying resource for synchronized release.
+         *
+         * @param lock the file lock to manage
+         * @param raf  the random access file associated with the lock
+         */
         LockHandle(FileLock lock, RandomAccessFile raf) {
             this.lock = lock;
             this.raf = raf;
@@ -50,6 +56,15 @@ public class JsonFileHandler {
         // utility class
     }
 
+    /**
+     * Saves a list to file as JSON with exclusive file locking.
+     *
+     * Creates parent directories as needed. The write operation is protected
+     * by an exclusive file lock to coordinate concurrent access.
+     *
+     * @throws StorageException if the parent directory cannot be created, JSON
+     *         serialization fails, or I/O operations fail
+     */
     public static <T> void saveToFile(List<T> data, String filePath) {
         File file = resolveFile(filePath);
         File parentDir = file.getParentFile();
@@ -76,6 +91,14 @@ public class JsonFileHandler {
         }
     }
 
+    /**
+     * Loads and deserializes a JSON list from the specified file.
+     *
+     * @param filePath the path to the JSON file
+     * @param clazz the class type for elements in the returned list
+     * @return a list of deserialized objects; an empty list if the file does not exist
+     * @throws StorageException if file resolution fails, lock acquisition times out, or deserialization fails
+     */
     public static <T> List<T> loadFromFile(String filePath, Class<T> clazz) {
         File file;
         try {
@@ -105,8 +128,10 @@ public class JsonFileHandler {
     }
 
     /**
-     * Acquires an exclusive file lock on the lock file, waiting up to LOCK_TIMEOUT_MS.
-     * Uses a separate .lock file to avoid interfering with the actual data file.
+     * Acquires an exclusive file lock, retrying until successful or timeout.
+     *
+     * @return a LockHandle containing the acquired FileLock and RandomAccessFile
+     * @throws StorageException if lock acquisition times out or fails due to I/O error
      */
     private static LockHandle acquireLock(File lockFile) {
         RandomAccessFile raf = null;
@@ -147,6 +172,7 @@ public class JsonFileHandler {
 
     /**
      * Releases the file lock and closes the associated RandomAccessFile.
+     * Handles any errors gracefully without throwing exceptions.
      */
     private static void releaseLock(LockHandle handle) {
         if (handle == null) {
@@ -170,13 +196,25 @@ public class JsonFileHandler {
     }
 
     /**
-     * Returns the lock file path for a given data file.
-     * Uses a sibling file with .lock extension.
+     * Constructs the lock file path for a given data file.
+     *
+     * @return the lock file with .lock extension in the same directory as the data file
      */
     private static File getLockFile(File dataFile) {
         return new File(dataFile.getParentFile(), dataFile.getName() + ".lock");
     }
 
+    /**
+     * Resolves a file path, using the Maven project root as the base directory for relative paths.
+     *
+     * For absolute paths, returns the normalized path. For relative paths, walks the directory
+     * tree upward from the current working directory searching for a pom.xml file. If found,
+     * the path is resolved relative to that directory. Otherwise, the path is resolved relative
+     * to the current working directory.
+     *
+     * @param filePath the file path to resolve
+     * @return the resolved, normalized File
+     */
     private static File resolveFile(String filePath) {
         Path path = Path.of(filePath);
         if (path.isAbsolute()) {

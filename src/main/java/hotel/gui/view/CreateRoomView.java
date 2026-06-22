@@ -39,22 +39,43 @@ public class CreateRoomView implements View {
     private final javafx.scene.control.Button submitButton =
             ViewUtils.primaryButton("Create Room", this::submit);
 
+    /**
+     * Constructs a new Create Room form view.
+     *
+     * @param hotelManager the manager for room creation operations
+     * @param navigationManager the manager for application navigation
+     */
     public CreateRoomView(HotelManager hotelManager, NavigationManager navigationManager) {
         this.hotelManager = hotelManager;
         this.navigationManager = navigationManager;
         this.root = buildView();
     }
 
+    /**
+     * Gets the title of this view.
+     *
+     * @return the view title
+     */
     @Override
     public String getTitle() {
         return TITLE;
     }
 
+    /**
+     * Retrieves the form's root node.
+     *
+     * @return The root VBox containing the create room form.
+     */
     @Override
     public Node getView() {
         return root;
     }
 
+    /**
+     * Constructs the room creation form interface.
+     *
+     * @return The form container with input fields, buttons, and status bar.
+     */
     private VBox buildView() {
         VBox box = ViewUtils.formContainer(TITLE);
 
@@ -98,6 +119,9 @@ public class CreateRoomView implements View {
         return box;
     }
 
+    /**
+     * Enables the submit button if all form inputs are valid.
+     */
     private void updateSubmitState() {
         boolean valid = true;
         try {
@@ -116,6 +140,16 @@ public class CreateRoomView implements View {
         submitButton.setDisable(!valid);
     }
 
+    /**
+     * Submits the form to create a new room.
+     *
+     * Parses the input fields, constructs a Room, and persists it via the hotel manager.
+     * On success, displays a confirmation message and clears the form.
+     * On failure, displays the error inline.
+     *
+     * @throws HotelException handled internally and displayed as an error status
+     * @throws NumberFormatException handled internally with a user-friendly error message
+     */
     private void submit() {
         try {
             int roomNumber = Integer.parseInt(roomNumberField.getText().trim());
@@ -136,6 +170,9 @@ public class CreateRoomView implements View {
         }
     }
 
+    /**
+     * Resets the form to its initial state with focus on the room number field.
+     */
     private void clear() {
         roomNumberField.clear();
         typeCombo.setValue(RoomType.SINGLE);

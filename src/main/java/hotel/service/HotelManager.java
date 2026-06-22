@@ -15,6 +15,13 @@ public class HotelManager {
     private final ReservationService reservationService;
     private final CustomerRepository customerRepository;
 
+    /**
+     * Constructs a HotelManager with the specified repositories.
+     *
+     * @param roomRepository        the repository for room data
+     * @param reservationRepository the repository for reservation data
+     * @param customerRepository    the repository for customer data
+     */
     public HotelManager(RoomRepository roomRepository, 
                        ReservationRepository reservationRepository,
                        CustomerRepository customerRepository) {
@@ -23,6 +30,11 @@ public class HotelManager {
         this.customerRepository = customerRepository;
     }
 
+    /**
+     * Provides access to the room service.
+     *
+     * @return the room service
+     */
     public RoomService getRoomService() {
         return roomService;
     }
@@ -47,6 +59,13 @@ public class HotelManager {
         return customerRepository.getAllCustomers();
     }
 
+    /**
+     * Retrieves all available rooms for the specified date range.
+     *
+     * @param checkIn  the check-in date
+     * @param checkOut the check-out date
+     * @return         a list of rooms available for the specified date range
+     */
     public List<Room> getAvailableRoomsForDateRange(LocalDate checkIn, LocalDate checkOut) {
         return roomService.getAllRooms().stream()
                 .filter(room -> reservationService.isRoomAvailable(room.getRoomNumber(), checkIn, checkOut))
