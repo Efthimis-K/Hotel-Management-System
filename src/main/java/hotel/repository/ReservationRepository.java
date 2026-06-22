@@ -1,88 +1,168 @@
 package hotel.repository;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import hotel.exception.DuplicateResourceException;
 import hotel.exception.ResourceNotFoundException;
+import hotel.exception.StorageException;
 import hotel.model.Reservation;
 import hotel.model.ReservationStatus;
-import hotel.util.JsonFileHandler;
+import hotel.storage.DatabaseManager;
 
 public class ReservationRepository {
-    private static final String FILE_PATH = "data/reservations.json";
-    private List<Reservation> reservations;
-
-    public ReservationRepository() {
-        loadReservations();
-    }
-
-    private void loadReservations() {
-        reservations = JsonFileHandler.loadFromFile(FILE_PATH, Reservation.class);
-        if (reservations == null) {
-            reservations = new ArrayList<>();
-        }
-    }
-
-    private void saveReservations() {
-        JsonFileHandler.saveToFile(reservations, FILE_PATH);
-    }
 
     public void addReservation(Reservation reservation) {
-        if (reservations.stream().anyMatch(r -> r.getReservationId().equals(reservation.getReservationId()))) {
-            throw DuplicateResourceException.forResource("Reservation", "ID", reservation.getReservationId());
+        String sql = "INSERT INTO reservations (reservation_id, customer_id, room_number, check_in_date, check_out_date, status) VALUES (?, ?, ?, ?, ?, ?)";
+        Connection conn = DatabaseManager.getInstance().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, reservation.getReservationId());
+            stmt.setString(2, reservation.getCustomerId());
+            stmt.setInt(3, reservation.getRoomNumber());
+            stmt.setString(4, reservation.getCheckInDate().toString());
+            stmt.setString(5, reservation.getCheckOutDate().toString());
+            stmt.setString(6, reservation.getStatus().name());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            if (e.getSQLState() != null && e.getSQLState().contains("SQLITE_CONSTRAINT_UNIQUE")) {
+                throw DuplicateResourceException.forResource("Reservation", "ID", reservation.getReservationId());
+            }
+            throw StorageException.forFile("data/reservations.json", e);
         }
-        reservations.add(reservation);
-        saveReservations();
     }
 
     public List<Reservation> getAllReservations() {
-        return new ArrayList<>(reservations);
+        List<Reservation> reservations = new ArrayList<>();
+        String sql = "SELECT reservation_id, customer_id, room_number, check_in_date, check_out_date, status FROM reservations";
+        Connection conn = DatabaseManager.getInstance().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                reservations.add(mapReservation(rs));
+            }
+        } catch (SQLException e) {
+            throw StorageException.forFile("data/reservations.json", e);
+        }
+        return reservations;
     }
 
     public Optional<Reservation> getReservationById(String reservationId) {
         if (reservationId == null) {
             return Optional.empty();
         }
-        return reservations.stream().filter(r -> r.getReservationId().equals(reservationId)).findFirst();
+        String sql = "SELECT reservation_id, customer_id, room_number, check_in_date, check_out_date, status FROM reservations WHERE reservation_id = ?";
+        Connection conn = DatabaseManager.getInstance().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, reservationId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapReservation(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw StorageException.forFile("data/reservations.json", e);
+        }
+        return Optional.empty();
     }
 
     public void updateReservation(Reservation reservation) {
-        boolean removed = reservations.removeIf(r -> r.getReservationId().equals(reservation.getReservationId()));
-        if (!removed) {
-            throw ResourceNotFoundException.forResource("Reservation", "ID", reservation.getReservationId());
+        String sql = "UPDATE reservations SET customer_id = ?, room_number = ?, check_in_date = ?, check_out_date = ?, status = ? WHERE reservation_id = ?";
+        Connection conn = DatabaseManager.getInstance().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, reservation.getCustomerId());
+            stmt.setInt(2, reservation.getRoomNumber());
+            stmt.setString(3, reservation.getCheckInDate().toString());
+            stmt.setString(4, reservation.getCheckOutDate().toString());
+            stmt.setString(5, reservation.getStatus().name());
+            stmt.setString(6, reservation.getReservationId());
+            int updatedRows = stmt.executeUpdate();
+            if (updatedRows == 0) {
+                throw ResourceNotFoundException.forResource("Reservation", "ID", reservation.getReservationId());
+            }
+        } catch (SQLException e) {
+            throw StorageException.forFile("data/reservations.json", e);
         }
-        reservations.add(reservation);
-        saveReservations();
     }
 
     public void deleteReservation(String reservationId) {
-        boolean removed = reservations.removeIf(r -> r.getReservationId().equals(reservationId));
-        if (!removed) {
-            throw ResourceNotFoundException.forResource("Reservation", "ID", reservationId);
+        String sql = "DELETE FROM reservations WHERE reservation_id = ?";
+        Connection conn = DatabaseManager.getInstance().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, reservationId);
+            int deletedRows = stmt.executeUpdate();
+            if (deletedRows == 0) {
+                throw ResourceNotFoundException.forResource("Reservation", "ID", reservationId);
+            }
+        } catch (SQLException e) {
+            throw StorageException.forFile("data/reservations.json", e);
         }
-        saveReservations();
     }
 
     public List<Reservation> getReservationsByCustomer(String customerId) {
         if (customerId == null) {
-            return List.of();
+            return new ArrayList<>();
         }
-        return reservations.stream()
-                .filter(r -> customerId.equals(r.getCustomerId()))
-                .toList();
+        List<Reservation> reservations = new ArrayList<>();
+        String sql = "SELECT reservation_id, customer_id, room_number, check_in_date, check_out_date, status FROM reservations WHERE customer_id = ?";
+        Connection conn = DatabaseManager.getInstance().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, customerId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    reservations.add(mapReservation(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw StorageException.forFile("data/reservations.json", e);
+        }
+        return reservations;
     }
 
     public List<Reservation> getReservationsByRoom(int roomNumber) {
-        return reservations.stream()
-                .filter(r -> r.getRoomNumber() == roomNumber)
-                .toList();
+        List<Reservation> reservations = new ArrayList<>();
+        String sql = "SELECT reservation_id, customer_id, room_number, check_in_date, check_out_date, status FROM reservations WHERE room_number = ?";
+        Connection conn = DatabaseManager.getInstance().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, roomNumber);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    reservations.add(mapReservation(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw StorageException.forFile("data/reservations.json", e);
+        }
+        return reservations;
     }
 
     public List<Reservation> getActiveReservations() {
-        return reservations.stream()
-                .filter(r -> r.getStatus() == ReservationStatus.CONFIRMED || r.getStatus() == ReservationStatus.PENDING)
-                .toList();
+        List<Reservation> reservations = new ArrayList<>();
+        String sql = "SELECT reservation_id, customer_id, room_number, check_in_date, check_out_date, status FROM reservations WHERE status IN ('CONFIRMED', 'PENDING')";
+        Connection conn = DatabaseManager.getInstance().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                reservations.add(mapReservation(rs));
+            }
+        } catch (SQLException e) {
+            throw StorageException.forFile("data/reservations.json", e);
+        }
+        return reservations;
+    }
+
+    private Reservation mapReservation(ResultSet rs) throws SQLException {
+        // Use no-arg constructor + setters to bypass the past-date validation
+        // in the 5-arg constructor — existing DB data may have past dates.
+        Reservation reservation = new Reservation();
+        reservation.setReservationId(rs.getString("reservation_id"));
+        reservation.setCustomerId(rs.getString("customer_id"));
+        reservation.setRoomNumber(rs.getInt("room_number"));
+        reservation.setCheckInDate(java.time.LocalDate.parse(rs.getString("check_in_date")));
+        reservation.setCheckOutDate(java.time.LocalDate.parse(rs.getString("check_out_date")));
+        reservation.setStatus(ReservationStatus.valueOf(rs.getString("status")));
+        return reservation;
     }
 }

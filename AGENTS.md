@@ -1,15 +1,12 @@
 # Side java project.
 
-- This is a java project simulating a hotel management system.
-  Currently it is a console application
-
-- Future plans include a GUI and a database.# Hotel Management System
-
+- This is a Java project simulating a hotel management system.
+- It includes a console application and a GUI application.
 - ALWAYS read the current codebase to understand the current state of the project and provide relevant outputs.
 
 # Tech stack
 
-- Tech stack is java 21, maven, and plugins and dependencies described in pom.xml on the project root.
+- Tech stack is Java 21, Maven, and the plugins and dependencies described in `pom.xml` at the project root.
 
 # Upgrade Dependencies
 
@@ -18,7 +15,9 @@
 
 # Run the project
 
-- To run the project, use the Standard Production Way: Build the JAR: `mvn clean package`
-- Run the JAR: `java -jar target/hotel-1.0-SNAPSHOT.jar`
+- To compile and package the project, use `mvn clean package`.
+- To run the current console application, use `mvn exec:java`.
+- To run the current GUI application, use `mvn javafx:run`.
+- Do NOT use `java -jar target/hotel-1.0-SNAPSHOT.jar` unless the build is updated to produce an executable JAR with a `Main-Class` manifest entry.
 - Testing is initiated with `mvn test`.
-- Commands are running in the powershell terminal.
+- The default terminal is PowerShell, so prioritize that.
