@@ -218,6 +218,13 @@ public class CreateReservationView implements View {
                 baseValid = false;
             }
         }
+        if (baseValid) {
+            LocalDate checkIn = checkInPicker.getValue();
+            LocalDate checkOut = checkOutPicker.getValue();
+            if (checkIn == null || checkOut == null || !checkOut.isAfter(checkIn)) {
+                baseValid = false;
+            }
+        }
         if (newCustomerMode) {
             baseValid = baseValid
                     && !firstNameField.getText().isBlank()
@@ -290,7 +297,9 @@ public class CreateReservationView implements View {
         emailField.clear();
         phoneField.clear();
         roomNumberField.clear();
+        checkInPicker.setValue(null);
         checkInPicker.getEditor().clear();
+        checkOutPicker.setValue(null);
         checkOutPicker.getEditor().clear();
         setNewCustomerMode(false);
         customerStatus.setText("");

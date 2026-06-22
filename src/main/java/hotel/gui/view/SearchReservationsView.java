@@ -61,6 +61,7 @@ public class SearchReservationsView implements View {
     private final Label status = ViewUtils.statusBar();
     private final javafx.scene.control.Button searchButton
             = ViewUtils.primaryButton("Search", this::search);
+    private Map<Integer, Double> roomPriceCache;
 
     public SearchReservationsView(HotelManager hotelManager, NavigationManager navigationManager) {
         this.hotelManager = hotelManager;
@@ -139,7 +140,9 @@ public class SearchReservationsView implements View {
             customerIdField.clear();
         }
         if (!needDate) {
+            startDatePicker.setValue(null);
             startDatePicker.getEditor().clear();
+            endDatePicker.setValue(null);
             endDatePicker.getEditor().clear();
         }
         searchButton.setDisable(false);
@@ -213,11 +216,13 @@ public class SearchReservationsView implements View {
     }
 
     private String computeTotal(Reservation reservation) {
-        Map<Integer, Double> priceByRoom = new HashMap<>();
-        for (Room r : hotelManager.getRoomService().getAllRooms()) {
-            priceByRoom.put(r.getRoomNumber(), r.getPricePerNight());
+        if (roomPriceCache == null) {
+            roomPriceCache = new HashMap<>();
+            for (Room r : hotelManager.getRoomService().getAllRooms()) {
+                roomPriceCache.put(r.getRoomNumber(), r.getPricePerNight());
+            }
         }
-        double price = priceByRoom.getOrDefault(reservation.getRoomNumber(), 0.0);
+        double price = roomPriceCache.getOrDefault(reservation.getRoomNumber(), 0.0);
         return "$" + reservation.calculateTotalPrice(price);
     }
 

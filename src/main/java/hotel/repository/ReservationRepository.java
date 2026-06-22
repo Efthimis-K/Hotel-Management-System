@@ -29,10 +29,10 @@ public class ReservationRepository {
             stmt.setString(6, reservation.getStatus().name());
             stmt.executeUpdate();
         } catch (SQLException e) {
-            if (e.getSQLState() != null && e.getSQLState().contains("SQLITE_CONSTRAINT_UNIQUE")) {
+            if (e.getErrorCode() == 19) {
                 throw DuplicateResourceException.forResource("Reservation", "ID", reservation.getReservationId());
             }
-            throw StorageException.forFile("data/reservations.json", e);
+            throw StorageException.forDatabase("reservations", e);
         }
     }
 
@@ -45,7 +45,7 @@ public class ReservationRepository {
                 reservations.add(mapReservation(rs));
             }
         } catch (SQLException e) {
-            throw StorageException.forFile("data/reservations.json", e);
+            throw StorageException.forDatabase("reservations", e);
         }
         return reservations;
     }
@@ -64,7 +64,7 @@ public class ReservationRepository {
                 }
             }
         } catch (SQLException e) {
-            throw StorageException.forFile("data/reservations.json", e);
+            throw StorageException.forDatabase("reservations", e);
         }
         return Optional.empty();
     }
@@ -84,7 +84,7 @@ public class ReservationRepository {
                 throw ResourceNotFoundException.forResource("Reservation", "ID", reservation.getReservationId());
             }
         } catch (SQLException e) {
-            throw StorageException.forFile("data/reservations.json", e);
+            throw StorageException.forDatabase("reservations", e);
         }
     }
 
@@ -98,7 +98,7 @@ public class ReservationRepository {
                 throw ResourceNotFoundException.forResource("Reservation", "ID", reservationId);
             }
         } catch (SQLException e) {
-            throw StorageException.forFile("data/reservations.json", e);
+            throw StorageException.forDatabase("reservations", e);
         }
     }
 
@@ -117,7 +117,7 @@ public class ReservationRepository {
                 }
             }
         } catch (SQLException e) {
-            throw StorageException.forFile("data/reservations.json", e);
+            throw StorageException.forDatabase("reservations", e);
         }
         return reservations;
     }
@@ -134,7 +134,7 @@ public class ReservationRepository {
                 }
             }
         } catch (SQLException e) {
-            throw StorageException.forFile("data/reservations.json", e);
+            throw StorageException.forDatabase("reservations", e);
         }
         return reservations;
     }
@@ -148,20 +148,22 @@ public class ReservationRepository {
                 reservations.add(mapReservation(rs));
             }
         } catch (SQLException e) {
-            throw StorageException.forFile("data/reservations.json", e);
+            throw StorageException.forDatabase("reservations", e);
         }
         return reservations;
     }
 
     private Reservation mapReservation(ResultSet rs) throws SQLException {
-        // Use no-arg constructor + setters to bypass the past-date validation
-        // in the 5-arg constructor — existing DB data may have past dates.
         Reservation reservation = new Reservation();
         reservation.setReservationId(rs.getString("reservation_id"));
         reservation.setCustomerId(rs.getString("customer_id"));
         reservation.setRoomNumber(rs.getInt("room_number"));
-        reservation.setCheckInDate(java.time.LocalDate.parse(rs.getString("check_in_date")));
-        reservation.setCheckOutDate(java.time.LocalDate.parse(rs.getString("check_out_date")));
+        try {
+            reservation.setCheckInDate(java.time.LocalDate.parse(rs.getString("check_in_date")));
+            reservation.setCheckOutDate(java.time.LocalDate.parse(rs.getString("check_out_date")));
+        } catch (Exception e) {
+            throw new SQLException("Invalid date format in reservation record: " + e.getMessage(), e);
+        }
         reservation.setStatus(ReservationStatus.valueOf(rs.getString("status")));
         return reservation;
     }

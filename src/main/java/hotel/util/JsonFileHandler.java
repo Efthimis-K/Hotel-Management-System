@@ -84,13 +84,14 @@ public class JsonFileHandler {
             throw StorageException.forFile(filePath, e);
         }
 
+        if (!file.exists()) {
+            return new ArrayList<>();
+        }
+
         File lockFile = getLockFile(file);
         LockHandle handle = null;
         try {
             handle = acquireLock(lockFile);
-            if (!file.exists()) {
-                return new ArrayList<>();
-            }
             JavaType type = objectMapper.getTypeFactory().constructCollectionType(List.class, clazz);
             try {
                 return objectMapper.readValue(file, type);

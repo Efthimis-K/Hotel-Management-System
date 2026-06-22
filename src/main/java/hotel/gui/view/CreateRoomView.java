@@ -100,16 +100,24 @@ public class CreateRoomView implements View {
 
     private void updateSubmitState() {
         boolean valid = true;
+        int roomNumber = 0;
         try {
-            Integer.parseInt(roomNumberField.getText().trim());
+            roomNumber = Integer.parseInt(roomNumberField.getText().trim());
+            if (roomNumber <= 0) {
+                valid = false;
+            }
         } catch (NumberFormatException e) {
             valid = false;
         }
         if (typeCombo.getValue() == null) {
             valid = false;
         }
+        double price = 0.0;
         try {
-            Double.parseDouble(priceField.getText().trim());
+            price = Double.parseDouble(priceField.getText().trim());
+            if (price <= 0) {
+                valid = false;
+            }
         } catch (NumberFormatException e) {
             valid = false;
         }

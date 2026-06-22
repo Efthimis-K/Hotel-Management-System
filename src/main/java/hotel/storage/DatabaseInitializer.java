@@ -4,10 +4,6 @@ import java.io.File;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
 /**
  * Handles the one-time migration of JSON data to SQLite. Reads data from
  * data/customers.json, data/rooms.json, and data/reservations.json and inserts
@@ -16,9 +12,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 public class DatabaseInitializer {
 
     private static final Logger LOGGER = Logger.getLogger(DatabaseInitializer.class.getName());
-    private static final ObjectMapper objectMapper = new ObjectMapper()
-            .registerModule(new JavaTimeModule())
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     private static final String DATA_DIR = "data";
 
     public static void initialize() {
@@ -161,8 +154,6 @@ public class DatabaseInitializer {
 
         // CREATE INDEX for better performance
         try (var stmt = conn.createStatement()) {
-            stmt.execute("CREATE INDEX IF NOT EXISTS idx_customers_id ON customers (customer_id)");
-            stmt.execute("CREATE INDEX IF NOT EXISTS idx_rooms_number ON rooms (room_number)");
             stmt.execute("CREATE INDEX IF NOT EXISTS idx_reservations_customer_id ON reservations (customer_id)");
             stmt.execute("CREATE INDEX IF NOT EXISTS idx_reservations_room_number ON reservations (room_number)");
             stmt.execute("CREATE INDEX IF NOT EXISTS idx_reservations_dates ON reservations (check_in_date, check_out_date)");

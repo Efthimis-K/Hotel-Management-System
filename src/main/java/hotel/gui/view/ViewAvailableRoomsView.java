@@ -83,7 +83,8 @@ public class ViewAvailableRoomsView implements View {
         box.getChildren().addAll(
                 grid,
                 ViewUtils.buttonRow(searchButton),
-                status
+                status,
+                tableView
         );
         VBox.setMargin(status, new Insets(8, 0, 0, 0));
         VBox.setVgrow(tableView, Priority.ALWAYS);

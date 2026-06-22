@@ -1,5 +1,7 @@
 package hotel.exception;
 
+import java.sql.SQLException;
+
 /**
  * Thrown when persistence (file IO, JSON serialization/deserialization) fails.
  * Always preserves the underlying IOException or JsonProcessingException
@@ -30,6 +32,17 @@ public class StorageException extends HotelException {
             ? cause.getMessage()
             : (cause != null ? cause.getClass().getSimpleName() : "unknown error");
         return new StorageException("Failed to access '" + filePath + "': " + causeMessage, cause);
+    }
+
+    /**
+     * Builds a database-context storage exception, preserving the original
+     * SQL error as the cause.
+     */
+    public static StorageException forDatabase(String tableName, SQLException cause) {
+        String causeMessage = cause != null && cause.getMessage() != null
+            ? cause.getMessage()
+            : (cause != null ? cause.getClass().getSimpleName() : "unknown error");
+        return new StorageException("Database error on table '" + tableName + "': " + causeMessage, cause);
     }
 
     @Override

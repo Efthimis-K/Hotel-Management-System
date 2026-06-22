@@ -13,6 +13,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * "View All Rooms" — a read-only {@link TableView} of every room, showing
  * number, type, price, and availability. Mirrors the console's "View All
@@ -21,6 +24,8 @@ import javafx.scene.layout.VBox;
 public class ViewAllRoomsView implements View {
 
     public static final String TITLE = "View All Rooms";
+
+    private static final Logger LOGGER = Logger.getLogger(ViewAllRoomsView.class.getName());
 
     private final HotelManager hotelManager;
     private final NavigationManager navigationManager;
@@ -32,7 +37,11 @@ public class ViewAllRoomsView implements View {
         this.hotelManager = hotelManager;
         this.navigationManager = navigationManager;
         this.root = buildView();
-        refresh();
+        try {
+            refresh();
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Failed to load rooms on view construction", e);
+        }
     }
 
     @Override
@@ -97,6 +106,10 @@ public class ViewAllRoomsView implements View {
     }
 
     private void refresh() {
-        roomData.setAll(hotelManager.getRoomService().getAllRooms());
+        try {
+            roomData.setAll(hotelManager.getRoomService().getAllRooms());
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Failed to refresh room list", e);
+        }
     }
 }

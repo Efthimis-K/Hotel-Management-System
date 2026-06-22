@@ -27,10 +27,10 @@ public class CustomerRepository {
             stmt.setString(5, customer.getPhoneNumber());
             stmt.executeUpdate();
         } catch (SQLException e) {
-            if (e.getSQLState() != null && e.getSQLState().contains("SQLITE_CONSTRAINT_UNIQUE")) {
+            if (e.getErrorCode() == 19) {
                 throw DuplicateResourceException.forResource("Customer", "ID", customer.getCustomerId());
             }
-            throw StorageException.forFile("data/customers.json", e);
+            throw StorageException.forDatabase("customers", e);
         }
     }
 
@@ -43,7 +43,7 @@ public class CustomerRepository {
                 customers.add(mapCustomer(rs));
             }
         } catch (SQLException e) {
-            throw StorageException.forFile("data/customers.json", e);
+            throw StorageException.forDatabase("customers", e);
         }
         return customers;
     }
@@ -62,7 +62,7 @@ public class CustomerRepository {
                 }
             }
         } catch (SQLException e) {
-            throw StorageException.forFile("data/customers.json", e);
+            throw StorageException.forDatabase("customers", e);
         }
         return Optional.empty();
     }
@@ -81,7 +81,7 @@ public class CustomerRepository {
                 throw ResourceNotFoundException.forResource("Customer", "ID", customer.getCustomerId());
             }
         } catch (SQLException e) {
-            throw StorageException.forFile("data/customers.json", e);
+            throw StorageException.forDatabase("customers", e);
         }
     }
 
@@ -95,7 +95,7 @@ public class CustomerRepository {
                 throw ResourceNotFoundException.forResource("Customer", "ID", customerId);
             }
         } catch (SQLException e) {
-            throw StorageException.forFile("data/customers.json", e);
+            throw StorageException.forDatabase("customers", e);
         }
     }
 

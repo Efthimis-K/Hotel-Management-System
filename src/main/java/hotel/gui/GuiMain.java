@@ -5,6 +5,7 @@ import hotel.repository.CustomerRepository;
 import hotel.repository.ReservationRepository;
 import hotel.repository.RoomRepository;
 import hotel.service.HotelManager;
+import hotel.storage.DatabaseInitializer;
 import hotel.util.ErrorHandler;
 
 import javafx.application.Application;
@@ -72,6 +73,7 @@ public class GuiMain extends Application {
     }
 
     private void initializeRepositories() {
+        DatabaseInitializer.initialize();
         RoomRepository roomRepository = new RoomRepository();
         ReservationRepository reservationRepository = new ReservationRepository();
         CustomerRepository customerRepository = new CustomerRepository();

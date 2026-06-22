@@ -7,7 +7,7 @@ import java.util.Objects;
 
 /**
  * DatabaseManager provides a singleton database connection for SQLite.
- * Uses connection pooling (basic) and ensures proper resource management.
+ * Ensures proper resource management.
  */
 public class DatabaseManager {
     private static final String DB_URL = "jdbc:sqlite:data/hotel.db";
@@ -26,16 +26,16 @@ public class DatabaseManager {
     }
 
     public synchronized Connection getConnection() {
-        if (connection == null) {
-            try {
+        try {
+            if (connection == null || connection.isClosed()) {
                 connection = DriverManager.getConnection(DB_URL);
                 // Enable foreign key constraints
                 try (var stmt = connection.createStatement()) {
                     stmt.execute("PRAGMA foreign_keys = ON;");
                 }
-            } catch (SQLException e) {
-                throw new RuntimeException("Failed to establish database connection", e);
             }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to establish database connection", e);
         }
         return connection;
     }

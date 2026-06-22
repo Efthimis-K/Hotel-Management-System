@@ -12,6 +12,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * "View All Customers" — a read-only {@link TableView} of every customer.
  * Mirrors the console's "View All Customers" operation.
@@ -19,6 +22,8 @@ import javafx.scene.layout.VBox;
 public class ViewAllCustomersView implements View {
 
     public static final String TITLE = "View All Customers";
+
+    private static final Logger LOGGER = Logger.getLogger(ViewAllCustomersView.class.getName());
 
     private final HotelManager hotelManager;
     private final NavigationManager navigationManager;
@@ -30,7 +35,11 @@ public class ViewAllCustomersView implements View {
         this.hotelManager = hotelManager;
         this.navigationManager = navigationManager;
         this.root = buildView();
-        refresh();
+        try {
+            refresh();
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Failed to load customers on view construction", e);
+        }
     }
 
     @Override
@@ -95,6 +104,10 @@ public class ViewAllCustomersView implements View {
     }
 
     private void refresh() {
-        customerData.setAll(hotelManager.getAllCustomers());
+        try {
+            customerData.setAll(hotelManager.getAllCustomers());
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Failed to refresh customer list", e);
+        }
     }
 }

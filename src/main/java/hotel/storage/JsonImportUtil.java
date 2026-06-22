@@ -36,8 +36,12 @@ public class JsonImportUtil {
         int failCount = 0;
         for (hotel.model.Customer customer : customers) {
             try {
-                insertCustomer(conn, customer);
-                successCount++;
+                int rows = insertCustomer(conn, customer);
+                if (rows > 0) {
+                    successCount++;
+                } else {
+                    LOGGER.fine("Duplicate customer ignored during import: " + customer.getCustomerId());
+                }
             } catch (Exception e) {
                 failCount++;
                 LOGGER.warning("Failed to insert customer " + customer.getCustomerId() + ": " + e.getMessage());
@@ -64,8 +68,12 @@ public class JsonImportUtil {
         int failCount = 0;
         for (hotel.model.Room room : rooms) {
             try {
-                insertRoom(conn, room);
-                successCount++;
+                int rows = insertRoom(conn, room);
+                if (rows > 0) {
+                    successCount++;
+                } else {
+                    LOGGER.fine("Duplicate room ignored during import: " + room.getRoomNumber());
+                }
             } catch (Exception e) {
                 failCount++;
                 LOGGER.warning("Failed to insert room " + room.getRoomNumber() + ": " + e.getMessage());
@@ -92,8 +100,12 @@ public class JsonImportUtil {
         int failCount = 0;
         for (hotel.model.Reservation reservation : reservations) {
             try {
-                insertReservation(conn, reservation);
-                successCount++;
+                int rows = insertReservation(conn, reservation);
+                if (rows > 0) {
+                    successCount++;
+                } else {
+                    LOGGER.fine("Duplicate reservation ignored during import: " + reservation.getReservationId());
+                }
             } catch (Exception e) {
                 failCount++;
                 LOGGER.warning("Failed to insert reservation " + reservation.getReservationId() + ": " + e.getMessage());
@@ -106,7 +118,7 @@ public class JsonImportUtil {
         }
     }
 
-    private static void insertCustomer(java.sql.Connection conn, hotel.model.Customer customer) throws SQLException {
+    private static int insertCustomer(java.sql.Connection conn, hotel.model.Customer customer) throws SQLException {
         String sql = "INSERT OR IGNORE INTO customers (customer_id, first_name, last_name, email, phone_number) VALUES (?, ?, ?, ?, ?)";
         try (var stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, customer.getCustomerId());
@@ -114,22 +126,22 @@ public class JsonImportUtil {
             stmt.setString(3, customer.getLastName());
             stmt.setString(4, customer.getEmail());
             stmt.setString(5, customer.getPhoneNumber());
-            stmt.executeUpdate();
+            return stmt.executeUpdate();
         }
     }
 
-    private static void insertRoom(java.sql.Connection conn, hotel.model.Room room) throws SQLException {
+    private static int insertRoom(java.sql.Connection conn, hotel.model.Room room) throws SQLException {
         String sql = "INSERT OR IGNORE INTO rooms (room_number, room_type, price_per_night, is_available) VALUES (?, ?, ?, ?)";
         try (var stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, room.getRoomNumber());
             stmt.setString(2, room.getRoomType().name());
             stmt.setDouble(3, room.getPricePerNight());
             stmt.setBoolean(4, room.isAvailable());
-            stmt.executeUpdate();
+            return stmt.executeUpdate();
         }
     }
 
-    private static void insertReservation(java.sql.Connection conn, hotel.model.Reservation reservation) throws SQLException {
+    private static int insertReservation(java.sql.Connection conn, hotel.model.Reservation reservation) throws SQLException {
         String sql = "INSERT OR IGNORE INTO reservations (reservation_id, customer_id, room_number, check_in_date, check_out_date, status) VALUES (?, ?, ?, ?, ?, ?)";
         try (var stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, reservation.getReservationId());
@@ -138,7 +150,7 @@ public class JsonImportUtil {
             stmt.setString(4, reservation.getCheckInDate().toString());
             stmt.setString(5, reservation.getCheckOutDate().toString());
             stmt.setString(6, reservation.getStatus().name());
-            stmt.executeUpdate();
+            return stmt.executeUpdate();
         }
     }
 }

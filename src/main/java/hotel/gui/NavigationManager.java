@@ -131,6 +131,12 @@ public class NavigationManager {
             return;
         }
 
+        Node current = root.getCenter();
+        String currentTitle = breadcrumbLabel.getText();
+        if (current != null && currentTitle != null && !currentTitle.isEmpty()) {
+            forwardStack.push(new Entry(current, currentTitle));
+        }
+
         // The backStack has entries in order: [newest, ..., oldest=home] (front to back)
         // We want forwardStack to have: [oldest-after-home, ..., newest] so forward
         // navigation goes in the original order.

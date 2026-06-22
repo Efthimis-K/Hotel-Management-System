@@ -33,10 +33,10 @@ public class RoomRepository {
             stmt.setBoolean(4, room.isAvailable());
             stmt.executeUpdate();
         } catch (SQLException e) {
-            if (e.getSQLState() != null && e.getSQLState().contains("SQLITE_CONSTRAINT_UNIQUE")) {
+            if (e.getErrorCode() == 19) {
                 throw DuplicateResourceException.forResource("Room", "number", room.getRoomNumber());
             }
-            throw StorageException.forFile("data/rooms.json", e);
+            throw StorageException.forDatabase("rooms", e);
         }
     }
 
@@ -49,7 +49,7 @@ public class RoomRepository {
                 rooms.add(mapRoom(rs));
             }
         } catch (SQLException e) {
-            throw StorageException.forFile("data/rooms.json", e);
+            throw StorageException.forDatabase("rooms", e);
         }
         return rooms;
     }
@@ -65,7 +65,7 @@ public class RoomRepository {
                 }
             }
         } catch (SQLException e) {
-            throw StorageException.forFile("data/rooms.json", e);
+            throw StorageException.forDatabase("rooms", e);
         }
         return Optional.empty();
     }
@@ -83,7 +83,7 @@ public class RoomRepository {
                 throw ResourceNotFoundException.forResource("Room", "number", room.getRoomNumber());
             }
         } catch (SQLException e) {
-            throw StorageException.forFile("data/rooms.json", e);
+            throw StorageException.forDatabase("rooms", e);
         }
     }
 
@@ -97,7 +97,7 @@ public class RoomRepository {
                 throw ResourceNotFoundException.forResource("Room", "number", roomNumber);
             }
         } catch (SQLException e) {
-            throw StorageException.forFile("data/rooms.json", e);
+            throw StorageException.forDatabase("rooms", e);
         }
     }
 
@@ -110,7 +110,7 @@ public class RoomRepository {
                 rooms.add(mapRoom(rs));
             }
         } catch (SQLException e) {
-            throw StorageException.forFile("data/rooms.json", e);
+            throw StorageException.forDatabase("rooms", e);
         }
         return rooms;
     }
