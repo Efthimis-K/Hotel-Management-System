@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -37,22 +38,32 @@ class RoomServiceTest {
     }
 
     @Test
-    void createRoomRejectsNonPositiveRoomNumber() {
-        Room room = new Room();
-        assertThrows(ValidationException.class, () -> room.setRoomNumber(-1));
-    }
-
-    @Test
-    void createRoomRejectsNonPositivePrice() {
-        Room room = new Room();
-        room.setRoomNumber(102);
-        room.setRoomType(RoomType.DOUBLE);
-        assertThrows(ValidationException.class, () -> room.setPricePerNight(-10.0));
-    }
-
-    @Test
     void createRoomRejectsNullRoom() {
         assertThrows(ValidationException.class, () -> roomService.createRoom(null));
+    }
+
+    @Test
+    void createRoomRejectsZeroRoomNumber() {
+        Room room = new Room();
+        room.setRoomType(RoomType.SINGLE);
+        room.setPricePerNight(50.0);
+        assertThrows(ValidationException.class, () -> roomService.createRoom(room));
+    }
+
+    @Test
+    void createRoomRejectsZeroPrice() {
+        Room room = new Room();
+        room.setRoomNumber(201);
+        room.setRoomType(RoomType.SINGLE);
+        assertThrows(ValidationException.class, () -> roomService.createRoom(room));
+    }
+
+    @Test
+    void createRoomRejectsDefaultRoomWithZeroPrice() {
+        Room room = new Room();
+        room.setRoomNumber(202);
+        room.setRoomType(RoomType.SINGLE);
+        assertThrows(ValidationException.class, () -> roomService.createRoom(room));
     }
 
     @Test
@@ -76,5 +87,38 @@ class RoomServiceTest {
         );
 
         assertEquals("Room with number 999 not found", exception.getMessage());
+    }
+
+    @Test
+    void getAllRoomsReturnsRepositoryList() {
+        Room room = new Room(301, RoomType.SINGLE, 80.0);
+        when(roomRepository.getAllRooms()).thenReturn(List.of(room));
+
+        var rooms = roomService.getAllRooms();
+
+        assertEquals(1, rooms.size());
+        assertEquals(301, rooms.getFirst().getRoomNumber());
+    }
+
+    @Test
+    void getAvailableRoomsReturnsRepositoryList() {
+        Room room = new Room(302, RoomType.DOUBLE, 120.0);
+        when(roomRepository.getAvailableRooms()).thenReturn(List.of(room));
+
+        var rooms = roomService.getAvailableRooms();
+
+        assertEquals(1, rooms.size());
+        assertEquals(302, rooms.getFirst().getRoomNumber());
+    }
+
+    @Test
+    void getRoomByNumberReturnsRepositoryResult() {
+        Room room = new Room(303, RoomType.SUITE, 200.0);
+        when(roomRepository.getRoomByNumber(303)).thenReturn(Optional.of(room));
+
+        var result = roomService.getRoomByNumber(303);
+
+        assertTrue(result.isPresent());
+        assertEquals(303, result.get().getRoomNumber());
     }
 }

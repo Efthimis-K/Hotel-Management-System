@@ -1,5 +1,9 @@
 package hotel.repository;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -7,73 +11,116 @@ import java.util.function.Consumer;
 
 import hotel.exception.DuplicateResourceException;
 import hotel.exception.ResourceNotFoundException;
+import hotel.exception.StorageException;
 import hotel.model.Room;
-import hotel.util.JsonFileHandler;
+import hotel.storage.DatabaseManager;
 
 public class RoomRepository {
-    private static final String FILE_PATH = "data/rooms.json";
-    private List<Room> rooms;
 
     public RoomRepository() {
-        loadRooms();
     }
 
     public RoomRepository(Consumer<Room> availabilityUpdater) {
-        loadRooms();
-        if (availabilityUpdater != null) {
-            rooms.forEach(availabilityUpdater);
-        }
-    }
-
-    private void loadRooms() {
-        // JsonFileHandler.loadFromFile already wraps IO and JSON errors in
-        // StorageException with the file path and original cause, so we
-        // simply propagate the failure to the caller (e.g. Main's startup
-        // safety net) instead of silently returning an empty list.
-        rooms = JsonFileHandler.loadFromFile(FILE_PATH, Room.class);
-        if (rooms == null) {
-            rooms = new ArrayList<>();
-        }
-    }
-
-    private void saveRooms() {
-        JsonFileHandler.saveToFile(rooms, FILE_PATH);
     }
 
     public void addRoom(Room room) {
-        if (rooms.stream().anyMatch(r -> r.getRoomNumber() == room.getRoomNumber())) {
-            throw DuplicateResourceException.forResource("Room", "number", room.getRoomNumber());
+        String sql = "INSERT INTO rooms (room_number, room_type, price_per_night, is_available) VALUES (?, ?, ?, ?)";
+        Connection conn = DatabaseManager.getInstance().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, room.getRoomNumber());
+            stmt.setString(2, room.getRoomType().name());
+            stmt.setDouble(3, room.getPricePerNight());
+            stmt.setBoolean(4, room.isAvailable());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            if (e.getErrorCode() == 19) {
+                throw DuplicateResourceException.forResource("Room", "number", room.getRoomNumber());
+            }
+            throw StorageException.forDatabase("rooms", e);
         }
-        rooms.add(room);
-        saveRooms();
     }
 
     public List<Room> getAllRooms() {
-        return new ArrayList<>(rooms);
+        List<Room> rooms = new ArrayList<>();
+        String sql = "SELECT room_number, room_type, price_per_night, is_available FROM rooms";
+        Connection conn = DatabaseManager.getInstance().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                rooms.add(mapRoom(rs));
+            }
+        } catch (SQLException e) {
+            throw StorageException.forDatabase("rooms", e);
+        }
+        return rooms;
     }
 
     public Optional<Room> getRoomByNumber(int roomNumber) {
-        return rooms.stream().filter(r -> r.getRoomNumber() == roomNumber).findFirst();
+        String sql = "SELECT room_number, room_type, price_per_night, is_available FROM rooms WHERE room_number = ?";
+        Connection conn = DatabaseManager.getInstance().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, roomNumber);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapRoom(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw StorageException.forDatabase("rooms", e);
+        }
+        return Optional.empty();
     }
 
     public void updateRoom(Room room) {
-        boolean removed = rooms.removeIf(r -> r.getRoomNumber() == room.getRoomNumber());
-        if (!removed) {
-            throw ResourceNotFoundException.forResource("Room", "number", room.getRoomNumber());
+        String sql = "UPDATE rooms SET room_type = ?, price_per_night = ?, is_available = ? WHERE room_number = ?";
+        Connection conn = DatabaseManager.getInstance().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, room.getRoomType().name());
+            stmt.setDouble(2, room.getPricePerNight());
+            stmt.setBoolean(3, room.isAvailable());
+            stmt.setInt(4, room.getRoomNumber());
+            int updatedRows = stmt.executeUpdate();
+            if (updatedRows == 0) {
+                throw ResourceNotFoundException.forResource("Room", "number", room.getRoomNumber());
+            }
+        } catch (SQLException e) {
+            throw StorageException.forDatabase("rooms", e);
         }
-        rooms.add(room);
-        saveRooms();
     }
 
     public void deleteRoom(int roomNumber) {
-        boolean removed = rooms.removeIf(r -> r.getRoomNumber() == roomNumber);
-        if (!removed) {
-            throw ResourceNotFoundException.forResource("Room", "number", roomNumber);
+        String sql = "DELETE FROM rooms WHERE room_number = ?";
+        Connection conn = DatabaseManager.getInstance().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, roomNumber);
+            int deletedRows = stmt.executeUpdate();
+            if (deletedRows == 0) {
+                throw ResourceNotFoundException.forResource("Room", "number", roomNumber);
+            }
+        } catch (SQLException e) {
+            throw StorageException.forDatabase("rooms", e);
         }
-        saveRooms();
     }
 
     public List<Room> getAvailableRooms() {
-        return rooms.stream().filter(Room::isAvailable).toList();
+        List<Room> rooms = new ArrayList<>();
+        String sql = "SELECT room_number, room_type, price_per_night, is_available FROM rooms WHERE is_available = 1";
+        Connection conn = DatabaseManager.getInstance().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                rooms.add(mapRoom(rs));
+            }
+        } catch (SQLException e) {
+            throw StorageException.forDatabase("rooms", e);
+        }
+        return rooms;
+    }
+
+    private Room mapRoom(ResultSet rs) throws SQLException {
+        Room room = new Room();
+        room.setRoomNumber(rs.getInt("room_number"));
+        room.setRoomType(hotel.model.RoomType.valueOf(rs.getString("room_type")));
+        room.setPricePerNight(rs.getDouble("price_per_night"));
+        room.setAvailable(rs.getBoolean("is_available"));
+        return room;
     }
 }

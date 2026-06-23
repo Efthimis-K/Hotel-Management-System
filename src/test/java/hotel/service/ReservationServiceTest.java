@@ -207,4 +207,54 @@ class ReservationServiceTest {
             () -> reservationService.createReservation("", 101, checkIn, checkIn.plusDays(2))
         );
     }
+
+    @Test
+    void createReservationRejectsNullCheckInDate() {
+        LocalDate checkOut = LocalDate.now().plusDays(2);
+        assertThrows(
+            ValidationException.class,
+            () -> reservationService.createReservation("CUST-1", 101, null, checkOut)
+        );
+    }
+
+    @Test
+    void createReservationRejectsNullCheckOutDate() {
+        LocalDate checkIn = LocalDate.now().plusDays(2);
+        assertThrows(
+            ValidationException.class,
+            () -> reservationService.createReservation("CUST-1", 101, checkIn, null)
+        );
+    }
+
+    @Test
+    void getReservationByIdReturnsRepositoryResult() {
+        Reservation reservation = new Reservation("RES-FIND", "CUST-F", 901, LocalDate.now().plusDays(3), LocalDate.now().plusDays(5));
+        when(reservationRepository.getReservationById("RES-FIND")).thenReturn(Optional.of(reservation));
+
+        var result = reservationService.getReservationById("RES-FIND");
+
+        assertTrue(result.isPresent());
+        assertEquals("RES-FIND", result.get().getReservationId());
+    }
+
+    @Test
+    void getReservationsByCustomerReturnsRepositoryResults() {
+        Reservation reservation = new Reservation("RES-CUST", "CUST-LIST", 901, LocalDate.now().plusDays(3), LocalDate.now().plusDays(5));
+        when(reservationRepository.getReservationsByCustomer("CUST-LIST")).thenReturn(List.of(reservation));
+
+        var results = reservationService.getReservationsByCustomer("CUST-LIST");
+
+        assertEquals(1, results.size());
+        assertEquals("CUST-LIST", results.getFirst().getCustomerId());
+    }
+
+    @Test
+    void getAllReservationsReturnsRepositoryResults() {
+        Reservation reservation = new Reservation("RES-ALL", "CUST-A", 901, LocalDate.now().plusDays(3), LocalDate.now().plusDays(5));
+        when(reservationRepository.getAllReservations()).thenReturn(List.of(reservation));
+
+        var results = reservationService.getAllReservations();
+
+        assertEquals(1, results.size());
+    }
 }

@@ -2,12 +2,15 @@ package hotel.model;
 
 import java.util.Objects;
 import java.util.regex.Pattern;
+
 import org.apache.commons.validator.routines.EmailValidator;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import hotel.exception.ValidationException;
 
 public class Customer {
+
     private String customerId;
     private String firstName;
     private String lastName;
@@ -15,7 +18,7 @@ public class Customer {
     private String phoneNumber;
 
     private static final EmailValidator EMAIL_VALIDATOR = EmailValidator.getInstance();
-    private static final Pattern PHONE_PATTERN = Pattern.compile("^[+]?[0-9]{10,15}$");
+    private static final Pattern PHONE_PATTERN = Pattern.compile("^[+]?[0-9]{7,15}$");
 
     public Customer() {
     }
@@ -90,8 +93,12 @@ public class Customer {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Customer customer = (Customer) o;
         return Objects.equals(customerId, customer.customerId);
     }
@@ -103,12 +110,12 @@ public class Customer {
 
     @Override
     public String toString() {
-        return "Customer{" +
-                "customerId='" + customerId + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                '}';
+        return "Customer{"
+                + "customerId='" + customerId + '\''
+                + ", firstName='" + firstName + '\''
+                + ", lastName='" + lastName + '\''
+                + ", email='" + email + '\''
+                + ", phoneNumber='" + phoneNumber + '\''
+                + '}';
     }
 }

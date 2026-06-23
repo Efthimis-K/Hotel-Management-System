@@ -1,14 +1,15 @@
 # Hotel Management System
 
-A console-based hotel management system with file-based JSON persistence, built with Java 21 and Maven.
+A hotel management system with a menu-driven console UI and a JavaFX GUI, built with Java 21 and Maven. Persistence is provided by SQLite, with one-time JSON migration on first launch.
 
 ## Features
 
-- **Room Management** — Create, view, and manage rooms; check availability by date range; rooms auto-mark as unavailable when occupied
+- **Room Management** — Create, view, and manage rooms; check availability by date range
 - **Customer Management** — Register customers with ID, name, email, and phone validation; view all customers
 - **Reservation Management** — Create, cancel, and search reservations; supports PENDING, CONFIRMED, CANCELLED, and COMPLETED statuses; automatic total price calculation
 - **Robust Error Handling** — Centralized `ErrorHandler` with logging and user-friendly messages; startup safety checks
-- **File Persistence** — JSON storage via Jackson `JavaTimeModule` for dates; files auto-created on first write
+- **SQLite Persistence** — Local SQLite database (`data/hotel.db`) with schema, indexes, and foreign-key enforcement; legacy JSON files are auto-migrated on first run
+- **JavaFX GUI** — Optional single-window graphical interface with breadcrumb navigation
 
 ## Requirements
 
@@ -17,54 +18,65 @@ A console-based hotel management system with file-based JSON persistence, built 
 
 ## Running the Application
 
+### Console UI
+
 ```bash
-# Build and run
-mvn clean compile exec:java -Dexec.mainClass="hotel.Main"
+mvn clean compile exec:java
 ```
 
-Or open the project in your IDE and run `Main.java`.
+### JavaFX GUI
+
+```bash
+mvn clean javafx:run
+```
+
+Or open the project in your IDE and run `GuiMain.java` for the GUI, or `Main.java` for the console UI.
 
 ## Usage
 
 The application presents a layered menu-driven interface.
 
 ### Main Menu
+
 1. Room Management
 2. Customer Management
 3. Reservation Management
 4. Exit
 
 ### Room Management
+
 1. Create Room — choose type and set a custom price
 2. View All Rooms — shows number, type, price, and availability
 3. View Available Rooms — filter by date range
 4. Back to Main Menu
 
 ### Customer Management
+
 1. Register Customer — ID, first/last name, email, phone with validation
 2. View All Customers
 3. Back to Main Menu
 
 ### Reservation Management
+
 1. Create Reservation — customer and room selection with date validation
 2. Cancel Reservation — changes status to CANCELLED
 3. Search Reservations — by customer, date range, or both
 4. Check Availability — specific room or all available rooms
 5. Back to Main Menu
 
-**Date format:** `yyyy-MM-dd` (e.g., `2024-12-25`)  
+**Date format:** `yyyy-MM-dd` (e.g., `2024-12-25`)
 **Reservation IDs:** auto-generated as `RES-XXXXXXXX` (8 hex chars)
 
 ## Room Types & Pricing
 
-| Type       | Description      | Default Price/Night |
-|------------|------------------|---------------------|
-| Single     | Single Room      | $50                 |
-| Double     | Double Room      | $80                 |
-| Suite      | Suite            | $150                |
-| Deluxe     | Deluxe Suite     | $200                |
+| Type   | Description  | Default Price/Night |
+| ------ | ------------ | ------------------- |
+| Single | Single Room  | $50                 |
+| Double | Double Room  | $80                 |
+| Suite  | Suite        | $150                |
+| Deluxe | Deluxe Suite | $200                |
 
-*Prices can be customized per room at creation time.*
+Prices can be customized per room at creation time.
 
 ## Customer Validation
 
@@ -78,31 +90,26 @@ The application presents a layered menu-driven interface.
 - `CANCELLED` — cancelled by user
 - `COMPLETED` — stay has ended
 
-*Rooms auto-toggle availability based on current date relative to their CONFIRMED reservations.*
-
 ## Architecture
 
 Layered architecture using Repository and Service patterns with constructor-based dependency injection.
 
 - `model/` — Domain entities (`Room`, `Customer`, `Reservation`) and enums (`RoomType`, `ReservationStatus`)
 - `service/` — Business logic (`RoomService`, `ReservationService`) and `HotelManager` orchestration
-- `repository/` — Data access with file persistence (`RoomRepository`, `CustomerRepository`, `ReservationRepository`)
+- `repository/` — Data access via JDBC (`RoomRepository`, `CustomerRepository`, `ReservationRepository`)
+- `storage/` — `DatabaseManager` (SQLite singleton connection), `DatabaseInitializer` (schema + one-time JSON-to-SQLite migration), and `JsonImportUtil` (JSON ingest utility)
 - `util/` — `JsonFileHandler` (Jackson-based JSON I/O) and `ErrorHandler` (centralized logging and user messaging)
 - `exception/` — Custom exceptions (`ValidationException`, `ResourceNotFoundException`, `DuplicateResourceException`, `StorageException`, `HotelException`)
 - `Main.java` — Console UI
-
-Data is stored in `data/rooms.json`, `data/customers.json`, and `data/reservations.json`.
+- `gui/` — JavaFX single-window application. `GuiMain` hosts a `BorderPane` whose center is swapped between views; `NavigationManager` keeps a back/forward history and updates the breadcrumb. One view class per console operation — no new windows or dialogs are ever opened.
 
 ## Persistence
 
-`JsonFileHandler` uses Jackson with `JavaTimeModule` to serialize/deserialize `LocalDate` fields. On startup:
-
-1. Repositories load existing data from `data/` (or create empty lists if files do not exist)
-2. `HotelManager.recalculateAllRoomAvailability()` updates room `isAvailable` flags based on current reservations
+`DatabaseManager` provides a singleton SQLite connection to `data/hotel.db`. `DatabaseInitializer` creates the schema (`customers`, `rooms`, `reservations`, plus indexes) on first launch and migrates any existing `data/customers.json`, `data/rooms.json`, and `data/reservations.json` into the database. Subsequent starts skip migration and use the database directly.
 
 ## Testing
 
-Tests are located in `src/test/java/` and use JUnit. To run tests:
+Tests are located in `src/test/java/` and use JUnit and Mockito. To run tests:
 
 ```bash
 mvn test
@@ -112,5 +119,7 @@ mvn test
 
 - **Java 21** — `switch` expressions, text blocks, `LocalDate`
 - **Maven** — build and dependency management
-- **Jackson** — JSON serialization with Java 8 Time module
+- **SQLite** — local relational database via `sqlite-jdbc`
+- **Jackson** — JSON serialization with Java 8 Time module (used for legacy migration)
 - **Apache Commons Validator** — email format validation
+- **JavaFX** — optional GUI framework

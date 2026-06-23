@@ -18,6 +18,7 @@ import hotel.repository.CustomerRepository;
 import hotel.repository.ReservationRepository;
 import hotel.repository.RoomRepository;
 import hotel.service.HotelManager;
+import hotel.storage.DatabaseInitializer;
 import hotel.util.ErrorHandler;
 
 public class Main {
@@ -66,7 +67,10 @@ public class Main {
         }
     }
 
-    private static void initializeRepositories() {
+private static void initializeRepositories() {
+        // Initialize database and migrate from JSON if needed
+        DatabaseInitializer.initialize();
+        
         roomRepository = new RoomRepository();
         reservationRepository = new ReservationRepository();
         customerRepository = new CustomerRepository();
