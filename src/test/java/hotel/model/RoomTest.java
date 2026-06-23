@@ -1,6 +1,7 @@
 package hotel.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -81,7 +82,7 @@ class RoomTest {
         assertEquals(room1, room2);
         assertEquals(room1.hashCode(), room2.hashCode());
         assertFalse(room1.equals(room3));
-        assertFalse(room1.equals(null));
+        assertNotEquals(null, room1);
         assertTrue(room1.equals(room1));
     }
 

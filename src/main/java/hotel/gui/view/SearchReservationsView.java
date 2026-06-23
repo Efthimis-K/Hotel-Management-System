@@ -2,9 +2,7 @@ package hotel.gui.view;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -61,7 +59,7 @@ public class SearchReservationsView implements View {
     private final Label status = ViewUtils.statusBar();
     private final javafx.scene.control.Button searchButton
             = ViewUtils.primaryButton("Search", this::search);
-    private Map<Integer, Double> roomPriceCache;
+    // Removed roomPriceCache; price will be fetched directly from RoomService
 
     public SearchReservationsView(HotelManager hotelManager, NavigationManager navigationManager) {
         this.hotelManager = hotelManager;
@@ -216,13 +214,11 @@ public class SearchReservationsView implements View {
     }
 
     private String computeTotal(Reservation reservation) {
-        if (roomPriceCache == null) {
-            roomPriceCache = new HashMap<>();
-            for (Room r : hotelManager.getRoomService().getAllRooms()) {
-                roomPriceCache.put(r.getRoomNumber(), r.getPricePerNight());
-            }
-        }
-        double price = roomPriceCache.getOrDefault(reservation.getRoomNumber(), 0.0);
+        // Directly retrieve the room price for the reservation's room number.
+        double price = hotelManager.getRoomService()
+                .getRoomByNumber(reservation.getRoomNumber())
+                .map(Room::getPricePerNight)
+                .orElse(0.0);
         return "$" + reservation.calculateTotalPrice(price);
     }
 
