@@ -1,11 +1,15 @@
 package hotel.gui.view;
 
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import hotel.gui.NavigationManager;
 import hotel.model.Room;
 import hotel.service.HotelManager;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.scene.Node;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -13,13 +17,10 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  * "View All Rooms" — a read-only {@link TableView} of every room, showing
- * number, type, price, and availability. Mirrors the console's "View All
- * Rooms" operation. A Refresh button reloads from the service.
+ * number, type, price, and availability. Mirrors the console's "View All Rooms"
+ * operation. A Refresh button reloads from the service.
  */
 public class ViewAllRoomsView implements View {
 
@@ -37,11 +38,8 @@ public class ViewAllRoomsView implements View {
         this.hotelManager = hotelManager;
         this.navigationManager = navigationManager;
         this.root = buildView();
-        try {
-            refresh();
-        } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Failed to load rooms on view construction", e);
-        }
+        // Load rooms asynchronously to avoid blocking the UI thread during construction
+        refresh();
     }
 
     @Override
@@ -106,10 +104,26 @@ public class ViewAllRoomsView implements View {
     }
 
     private void refresh() {
-        try {
-            roomData.setAll(hotelManager.getRoomService().getAllRooms());
-        } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Failed to refresh room list", e);
-        }
+        Task<List<Room>> task = new Task<>() {
+            @Override
+            protected List<Room> call() throws Exception {
+                // Perform the potentially long-running database query off the UI thread
+                return hotelManager.getRoomService().getAllRooms();
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            // This runs on the JavaFX Application Thread, safe to update UI components
+            roomData.setAll(task.getValue());
+        });
+
+        task.setOnFailed(event -> {
+            LOGGER.log(Level.WARNING, "Failed to refresh room list", task.getException());
+        });
+
+        // Execute the task on a background thread
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
     }
 }

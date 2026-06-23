@@ -119,11 +119,20 @@ public class CreateReservationView implements View {
         checkOutPicker.setPromptText("yyyy-MM-dd");
         checkOutPicker.setPrefWidth(240);
 
-        roomNumberField.textProperty().addListener((o, a, b) -> updateTotalPrice());
+        roomNumberField.textProperty().addListener((o, a, b) -> {
+            updateTotalPrice();
+            updateSubmitState();
+        });
         checkInPicker.editorProperty().get().textProperty()
-                .addListener((o, a, b) -> updateTotalPrice());
+                .addListener((o, a, b) -> {
+                    updateTotalPrice();
+                    updateSubmitState();
+                });
         checkOutPicker.editorProperty().get().textProperty()
-                .addListener((o, a, b) -> updateTotalPrice());
+                .addListener((o, a, b) -> {
+                    updateTotalPrice();
+                    updateSubmitState();
+                });
 
         GridPane reservationGrid = new GridPane();
         reservationGrid.setHgap(10);
@@ -248,7 +257,7 @@ public class CreateReservationView implements View {
                         phoneField.getText().trim()
                 );
                 hotelManager.registerCustomer(customer);
-                LOGGER.log(Level.INFO, "Auto-registered new customer during reservation: {0}", customer);
+                LOGGER.log(Level.INFO, "Auto-registered new customer during reservation: {0}", customer.getCustomerId());
             } else if (hotelManager.getCustomerById(id).isEmpty()) {
                 ViewUtils.setStatus(status,
                         "Customer with ID '" + id + "' was not found. Please register them first.",
@@ -305,5 +314,6 @@ public class CreateReservationView implements View {
         customerStatus.setText("");
         totalPriceLabel.setText("");
         customerIdField.requestFocus();
+        updateSubmitState();
     }
 }

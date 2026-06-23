@@ -267,7 +267,7 @@ public class SearchReservationsView implements View {
                 }
                 List<Reservation> all = hotelManager.getReservationService().getReservationsByCustomer(cid);
                 results = all.stream()
-                        .filter(r -> !r.getCheckInDate().isAfter(end) && !r.getCheckOutDate().isBefore(start))
+                        .filter(r -> r.overlapsWith(start, end))
                         .toList();
                 title = "Reservations for Customer: " + cid + " between "
                         + start.format(FORMATTER) + " and " + end.format(FORMATTER);

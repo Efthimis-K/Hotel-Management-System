@@ -122,13 +122,13 @@ public class RegisterCustomerView implements View {
 
     private void submit() {
         String id = customerIdField.getText().trim();
-        if (hotelManager.getCustomerById(id).isPresent()) {
-            ViewUtils.setStatus(status,
-                    "Customer with ID '" + id + "' already exists.",
-                    ViewUtils.StatusKind.ERROR);
-            return;
-        }
         try {
+            if (hotelManager.getCustomerById(id).isPresent()) {
+                ViewUtils.setStatus(status,
+                        "Customer with ID '" + id + "' already exists.",
+                        ViewUtils.StatusKind.ERROR);
+                return;
+            }
             Customer customer = new Customer(
                     id,
                     firstNameField.getText().trim(),
