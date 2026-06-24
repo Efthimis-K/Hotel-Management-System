@@ -7,6 +7,7 @@ import java.util.Objects;
 import hotel.exception.ValidationException;
 
 public class Reservation {
+
     private String reservationId;
     private String customerId;
     private int roomNumber;
@@ -19,15 +20,20 @@ public class Reservation {
     }
 
     public Reservation(String reservationId, String customerId, int roomNumber,
-                      LocalDate checkInDate, LocalDate checkOutDate) {
-        setReservationId(reservationId);
-        setCustomerId(customerId);
-        setRoomNumber(roomNumber);
-        setCheckInDate(checkInDate);
-        setCheckOutDate(checkOutDate);
+            LocalDate checkInDate, LocalDate checkOutDate) {
+        validateReservationId(reservationId);
+        validateCustomerId(customerId);
+        validateRoomNumber(roomNumber);
+        validateCheckInDate(checkInDate);
+        validateCheckOutDate(checkOutDate, checkInDate);
         if (checkInDate != null && checkInDate.isBefore(LocalDate.now())) {
             throw new ValidationException("Check-in date cannot be in the past");
         }
+        this.reservationId = reservationId;
+        this.customerId = customerId;
+        this.roomNumber = roomNumber;
+        this.checkInDate = checkInDate;
+        this.checkOutDate = checkOutDate;
         this.status = ReservationStatus.PENDING;
     }
 
@@ -36,10 +42,14 @@ public class Reservation {
     }
 
     public void setReservationId(String reservationId) {
+        validateReservationId(reservationId);
+        this.reservationId = reservationId;
+    }
+
+    private static void validateReservationId(String reservationId) {
         if (reservationId == null || reservationId.isBlank()) {
             throw ValidationException.forField("reservationId", "must not be null or blank");
         }
-        this.reservationId = reservationId;
     }
 
     public String getCustomerId() {
@@ -47,10 +57,14 @@ public class Reservation {
     }
 
     public void setCustomerId(String customerId) {
+        validateCustomerId(customerId);
+        this.customerId = customerId;
+    }
+
+    private static void validateCustomerId(String customerId) {
         if (customerId == null || customerId.isBlank()) {
             throw ValidationException.forField("customerId", "must not be null or blank");
         }
-        this.customerId = customerId;
     }
 
     public int getRoomNumber() {
@@ -58,10 +72,14 @@ public class Reservation {
     }
 
     public void setRoomNumber(int roomNumber) {
+        validateRoomNumber(roomNumber);
+        this.roomNumber = roomNumber;
+    }
+
+    private static void validateRoomNumber(int roomNumber) {
         if (roomNumber <= 0) {
             throw ValidationException.forField("roomNumber", "must be positive");
         }
-        this.roomNumber = roomNumber;
     }
 
     public LocalDate getCheckInDate() {
@@ -69,10 +87,14 @@ public class Reservation {
     }
 
     public void setCheckInDate(LocalDate checkInDate) {
+        validateCheckInDate(checkInDate);
+        this.checkInDate = checkInDate;
+    }
+
+    private static void validateCheckInDate(LocalDate checkInDate) {
         if (checkInDate == null) {
             throw ValidationException.forField("checkInDate", "must not be null");
         }
-        this.checkInDate = checkInDate;
     }
 
     public LocalDate getCheckOutDate() {
@@ -80,13 +102,17 @@ public class Reservation {
     }
 
     public void setCheckOutDate(LocalDate checkOutDate) {
+        validateCheckOutDate(checkOutDate, this.checkInDate);
+        this.checkOutDate = checkOutDate;
+    }
+
+    private static void validateCheckOutDate(LocalDate checkOutDate, LocalDate checkInDate) {
         if (checkOutDate == null) {
             throw ValidationException.forField("checkOutDate", "must not be null");
         }
         if (checkInDate != null && !checkOutDate.isAfter(checkInDate)) {
             throw ValidationException.forField("checkOutDate", "must be after check-in date");
         }
-        this.checkOutDate = checkOutDate;
     }
 
     public ReservationStatus getStatus() {
@@ -134,8 +160,12 @@ public class Reservation {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Reservation that = (Reservation) o;
         return Objects.equals(reservationId, that.reservationId);
     }
@@ -147,13 +177,13 @@ public class Reservation {
 
     @Override
     public String toString() {
-        return "Reservation{" +
-                "reservationId='" + reservationId + '\'' +
-                ", customerId='" + customerId + '\'' +
-                ", roomNumber=" + roomNumber +
-                ", checkInDate=" + checkInDate +
-                ", checkOutDate=" + checkOutDate +
-                ", status=" + status +
-                '}';
+        return "Reservation{"
+                + "reservationId='" + reservationId + '\''
+                + ", customerId='" + customerId + '\''
+                + ", roomNumber=" + roomNumber
+                + ", checkInDate=" + checkInDate
+                + ", checkOutDate=" + checkOutDate
+                + ", status=" + status
+                + '}';
     }
 }
