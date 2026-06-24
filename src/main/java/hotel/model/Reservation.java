@@ -88,6 +88,9 @@ public class Reservation {
 
     public void setCheckInDate(LocalDate checkInDate) {
         validateCheckInDate(checkInDate);
+        if (checkOutDate != null && !checkInDate.isBefore(checkOutDate)) {
+            throw ValidationException.forField("checkInDate", "must be before check-out date");
+        }
         this.checkInDate = checkInDate;
     }
 
