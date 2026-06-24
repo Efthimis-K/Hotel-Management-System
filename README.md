@@ -21,16 +21,16 @@ A hotel management system with a menu-driven console UI and a JavaFX GUI, built 
 ### Console UI
 
 ```bash
-mvn clean compile exec:java
+mvn exec:java
 ```
 
 ### JavaFX GUI
 
 ```bash
-mvn clean javafx:run
+mvn javafx:run
 ```
 
-Or open the project in your IDE and run `GuiMain.java` for the GUI, or `Main.java` for the console UI.
+Or open the project in your IDE and run `hotel.gui.GuiMain` for the GUI, or `hotel.Main` for the console UI.
 
 ## Usage
 
@@ -94,32 +94,54 @@ Prices can be customized per room at creation time.
 
 Layered architecture using Repository and Service patterns with constructor-based dependency injection.
 
-- `model/` — Domain entities (`Room`, `Customer`, `Reservation`) and enums (`RoomType`, `ReservationStatus`)
-- `service/` — Business logic (`RoomService`, `ReservationService`) and `HotelManager` orchestration
-- `repository/` — Data access via JDBC (`RoomRepository`, `CustomerRepository`, `ReservationRepository`)
-- `storage/` — `DatabaseManager` (SQLite singleton connection), `DatabaseInitializer` (schema + one-time JSON-to-SQLite migration), and `JsonImportUtil` (JSON ingest utility)
-- `util/` — `JsonFileHandler` (Jackson-based JSON I/O) and `ErrorHandler` (centralized logging and user messaging)
-- `exception/` — Custom exceptions (`ValidationException`, `ResourceNotFoundException`, `DuplicateResourceException`, `StorageException`, `HotelException`)
-- `Main.java` — Console UI
-- `gui/` — JavaFX single-window application. `GuiMain` hosts a `BorderPane` whose center is swapped between views; `NavigationManager` keeps a back/forward history and updates the breadcrumb. One view class per console operation — no new windows or dialogs are ever opened.
+- `hotel.model` — Domain entities (`Room`, `Customer`, `Reservation`) and enums (`RoomType`, `ReservationStatus`)
+- `hotel.service` — Business logic (`RoomService`, `ReservationService`) and `HotelManager` orchestration
+- `hotel.repository` — Data access via JDBC (`RoomRepository`, `CustomerRepository`, `ReservationRepository`)
+- `hotel.storage` — `DatabaseManager` (SQLite singleton connection), `DatabaseInitializer` (schema + one-time JSON-to-SQLite migration), and `JsonImportUtil` (JSON ingest utility)
+- `hotel.util` — `JsonFileHandler` (Jackson-based JSON I/O) and `ErrorHandler` (centralized logging and user messaging)
+- `hotel.exception` — Custom exceptions (`ValidationException`, `ResourceNotFoundException`, `DuplicateResourceException`, `StorageException`, `HotelException`)
+- `hotel.gui` — JavaFX single-window application. `GuiMain` hosts a `BorderPane` whose center is swapped between views; `NavigationManager` keeps a back/forward history and updates the breadcrumb. One view class per console operation — no new windows or dialogs are ever opened.
+- `hotel.Main` — Console UI entry point
 
 ## Persistence
 
 `DatabaseManager` provides a singleton SQLite connection to `data/hotel.db`. `DatabaseInitializer` creates the schema (`customers`, `rooms`, `reservations`, plus indexes) on first launch and migrates any existing `data/customers.json`, `data/rooms.json`, and `data/reservations.json` into the database. Subsequent starts skip migration and use the database directly.
 
+## Project Structure
+
+```
+src/
+├── main/java/hotel/
+│   ├── model/          # Domain entities and enums
+│   ├── service/        # Business logic
+│   ├── repository/     # Data access layer
+│   ├── storage/        # Database connection and initialization
+│   ├── util/           # Utilities
+│   ├── exception/      # Custom exceptions
+│   ├── gui/            # JavaFX views and navigation
+│   └── Main.java       # Console entry point
+└── test/java/hotel/    # JUnit and Mockito tests
+```
+
 ## Testing
 
-Tests are located in `src/test/java/` and use JUnit and Mockito. To run tests:
+Tests are located in `src/test/java/hotel/` and use JUnit 5.14.4 and Mockito 5.23.0. To run tests:
 
 ```bash
 mvn test
 ```
 
+## Data Directory
+
+- `data/hotel.db` — SQLite database
+- `data/customers.json`, `data/rooms.json`, `data/reservations.json` — legacy JSON files (auto-migrated on first launch)
+
 ## Tech Stack
 
 - **Java 21** — `switch` expressions, text blocks, `LocalDate`
 - **Maven** — build and dependency management
-- **SQLite** — local relational database via `sqlite-jdbc`
-- **Jackson** — JSON serialization with Java 8 Time module (used for legacy migration)
-- **Apache Commons Validator** — email format validation
-- **JavaFX** — optional GUI framework
+- **SQLite** — local relational database via `sqlite-jdbc` 3.53.2.0
+- **Jackson** 2.21.4 — JSON serialization with Java 8 Time module (used for legacy migration)
+- **Apache Commons Validator** 1.10.1 — email format validation
+- **JavaFX** 21.0.2 — optional GUI framework
+- **JUnit** 5.14.4, **Mockito** 5.23.0 — testing
