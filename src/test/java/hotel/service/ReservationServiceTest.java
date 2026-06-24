@@ -202,28 +202,31 @@ class ReservationServiceTest {
     @Test
     void createReservationRejectsBlankCustomerId() {
         LocalDate checkIn = LocalDate.now().plusDays(2);
-        assertThrows(
+        ValidationException exception = assertThrows(
             ValidationException.class,
             () -> reservationService.createReservation("", 101, checkIn, checkIn.plusDays(2))
         );
+        assertEquals("must not be null or blank", exception.getMessage());
     }
 
     @Test
     void createReservationRejectsNullCheckInDate() {
         LocalDate checkOut = LocalDate.now().plusDays(2);
-        assertThrows(
+        ValidationException exception = assertThrows(
             ValidationException.class,
             () -> reservationService.createReservation("CUST-1", 101, null, checkOut)
         );
+        assertEquals("check-in and check-out are required", exception.getMessage());
     }
 
     @Test
     void createReservationRejectsNullCheckOutDate() {
         LocalDate checkIn = LocalDate.now().plusDays(2);
-        assertThrows(
+        ValidationException exception = assertThrows(
             ValidationException.class,
             () -> reservationService.createReservation("CUST-1", 101, checkIn, null)
         );
+        assertEquals("check-in and check-out are required", exception.getMessage());
     }
 
     @Test

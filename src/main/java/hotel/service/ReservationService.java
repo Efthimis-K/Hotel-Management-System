@@ -25,13 +25,13 @@ public class ReservationService {
     public Reservation createReservation(String customerId, int roomNumber,
                                          LocalDate checkInDate, LocalDate checkOutDate) {
         if (customerId == null || customerId.isBlank()) {
-            throw ValidationException.forField("customerId", "must not be null or blank");
+            throw new ValidationException("must not be null or blank");
         }
         if (checkInDate == null || checkOutDate == null) {
-            throw ValidationException.forField("dates", "check-in and check-out are required");
+            throw new ValidationException("check-in and check-out are required");
         }
         if (!checkOutDate.isAfter(checkInDate)) {
-            throw ValidationException.forField("checkOutDate", "must be after check-in date");
+            throw new ValidationException("must be after check-in date");
         }
         if (roomRepository.getRoomByNumber(roomNumber).isEmpty()) {
             throw ResourceNotFoundException.forResource("Room", "number", roomNumber);
