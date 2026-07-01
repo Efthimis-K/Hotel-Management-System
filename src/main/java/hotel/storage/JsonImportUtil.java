@@ -48,19 +48,19 @@ public class JsonImportUtil {
             conn.commit();
         } catch (Exception e) {
             originalException = e;
-            conn.rollback();
+            try {
+                conn.rollback();
+            } catch (Exception rollbackEx) {
+                e.addSuppressed(rollbackEx);
+            }
             throw e;
         } finally {
-            if (originalException != null) {
-                try {
-                    conn.setAutoCommit(true);
-                } catch (Exception autoCommitEx) {
+            try {
+                conn.setAutoCommit(true);
+            } catch (Exception autoCommitEx) {
+                if (originalException != null) {
                     originalException.addSuppressed(autoCommitEx);
-                }
-            } else {
-                try {
-                    conn.setAutoCommit(true);
-                } catch (Exception autoCommitEx) {
+                } else {
                     LOGGER.warning("Failed to restore auto-commit: " + autoCommitEx.getMessage());
                 }
             }
@@ -93,19 +93,19 @@ public class JsonImportUtil {
             conn.commit();
         } catch (Exception e) {
             originalException = e;
-            conn.rollback();
+            try {
+                conn.rollback();
+            } catch (Exception rollbackEx) {
+                e.addSuppressed(rollbackEx);
+            }
             throw e;
         } finally {
-            if (originalException != null) {
-                try {
-                    conn.setAutoCommit(true);
-                } catch (Exception autoCommitEx) {
+            try {
+                conn.setAutoCommit(true);
+            } catch (Exception autoCommitEx) {
+                if (originalException != null) {
                     originalException.addSuppressed(autoCommitEx);
-                }
-            } else {
-                try {
-                    conn.setAutoCommit(true);
-                } catch (Exception autoCommitEx) {
+                } else {
                     LOGGER.warning("Failed to restore auto-commit: " + autoCommitEx.getMessage());
                 }
             }
@@ -138,19 +138,19 @@ public class JsonImportUtil {
             conn.commit();
         } catch (Exception e) {
             originalException = e;
-            conn.rollback();
+            try {
+                conn.rollback();
+            } catch (Exception rollbackEx) {
+                e.addSuppressed(rollbackEx);
+            }
             throw e;
         } finally {
-            if (originalException != null) {
-                try {
-                    conn.setAutoCommit(true);
-                } catch (Exception autoCommitEx) {
+            try {
+                conn.setAutoCommit(true);
+            } catch (Exception autoCommitEx) {
+                if (originalException != null) {
                     originalException.addSuppressed(autoCommitEx);
-                }
-            } else {
-                try {
-                    conn.setAutoCommit(true);
-                } catch (Exception autoCommitEx) {
+                } else {
                     LOGGER.warning("Failed to restore auto-commit: " + autoCommitEx.getMessage());
                 }
             }
