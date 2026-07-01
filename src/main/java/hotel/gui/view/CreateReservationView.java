@@ -5,7 +5,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 import hotel.exception.HotelException;
 import hotel.gui.NavigationManager;
@@ -13,6 +12,7 @@ import hotel.model.Customer;
 import hotel.model.Reservation;
 import hotel.model.Room;
 import hotel.service.HotelManager;
+import hotel.util.ValidationUtils;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.DatePicker;
@@ -36,7 +36,6 @@ public class CreateReservationView implements View {
 
     private static final Logger LOGGER = Logger.getLogger(CreateReservationView.class.getName());
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static final Pattern PHONE_PATTERN = Pattern.compile("^[+]?[0-9]{7,15}$");
 
     private final HotelManager hotelManager;
     private final NavigationManager navigationManager;
@@ -205,9 +204,10 @@ public class CreateReservationView implements View {
                 Optional<Room> room = hotelManager.getRoomService().getRoomByNumber(roomNumber);
                 if (room.isPresent()) {
                     long nights = java.time.temporal.ChronoUnit.DAYS.between(checkIn, checkOut);
-                    long total = (long) (nights * room.get().getPricePerNight());
-                    return String.format("$%d (%d night%s @ $%.2f/night)",
-                            total, nights, nights == 1 ? "" : "s", room.get().getPricePerNight());
+                    java.math.BigDecimal total = java.math.BigDecimal.valueOf(nights)
+                            .multiply(java.math.BigDecimal.valueOf(room.get().getPricePerNight()));
+                    return String.format("$%s (%d night%s @ $%.2f/night)",
+                            total.toBigInteger(), nights, nights == 1 ? "" : "s", room.get().getPricePerNight());
                 }
                 return "(room " + roomNumber + " not found)";
             }
@@ -234,14 +234,14 @@ public class CreateReservationView implements View {
                 baseValid = false;
             }
         }
-        if (newCustomerMode) {
-            baseValid = baseValid
-                    && !firstNameField.getText().isBlank()
-                    && !lastNameField.getText().isBlank()
-                    && org.apache.commons.validator.routines.EmailValidator.getInstance()
-                            .isValid(emailField.getText().trim())
-                    && PHONE_PATTERN.matcher(phoneField.getText().trim()).matches();
-        }
+if (newCustomerMode) {
+             baseValid = baseValid
+                     && !firstNameField.getText().isBlank()
+                     && !lastNameField.getText().isBlank()
+                     && ValidationUtils.getEmailValidator()
+                             .isValid(emailField.getText().trim())
+                     && ValidationUtils.getPhonePattern().matcher(phoneField.getText().trim()).matches();
+         }
         submitButton.setDisable(!baseValid);
     }
 
@@ -279,15 +279,15 @@ public class CreateReservationView implements View {
                     .createReservation(id, roomNumber, checkIn, checkOut);
 
             Optional<Room> room = hotelManager.getRoomService().getRoomByNumber(roomNumber);
-            long total = room.map(r -> reservation.calculateTotalPrice(r.getPricePerNight())).orElse(0L);
+            java.math.BigDecimal total = room.map(r -> reservation.calculateTotalPrice(r.getPricePerNight())).orElse(java.math.BigDecimal.ZERO);
 
             ViewUtils.setStatus(status,
-                    String.format("Reservation created successfully! ID: %s, Room %d, %s to %s, Total: $%d",
+                    String.format("Reservation created successfully! ID: %s, Room %d, %s to %s, Total: $%s",
                             reservation.getReservationId(),
                             roomNumber,
                             checkIn.format(FORMATTER),
                             checkOut.format(FORMATTER),
-                            total),
+                            total.toBigInteger()),
                     ViewUtils.StatusKind.SUCCESS);
             reset();
         } catch (HotelException e) {

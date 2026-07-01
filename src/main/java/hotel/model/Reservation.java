@@ -1,5 +1,8 @@
 package hotel.model;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
@@ -129,7 +132,7 @@ public class Reservation {
         this.status = status;
     }
 
-    public long calculateTotalPrice(double pricePerNight) {
+    public BigDecimal calculateTotalPrice(double pricePerNight) {
         if (checkInDate == null || checkOutDate == null) {
             throw new ValidationException("Cannot calculate total price: check-in and check-out dates must be set");
         }
@@ -140,11 +143,12 @@ public class Reservation {
         if (nights < 0) {
             throw new ValidationException("Cannot calculate total price: check-out is before check-in");
         }
-        double total = (double) nights * pricePerNight;
-        if (total > Long.MAX_VALUE) {
+        BigDecimal price = BigDecimal.valueOf(pricePerNight);
+        BigDecimal total = BigDecimal.valueOf(nights).multiply(price, new MathContext(16, RoundingMode.HALF_UP));
+        if (total.compareTo(BigDecimal.valueOf(Long.MAX_VALUE)) > 0) {
             throw new ValidationException("Total price overflow: " + nights + " nights x $" + pricePerNight);
         }
-        return (long) total;
+        return total;
     }
 
     public void cancel() {

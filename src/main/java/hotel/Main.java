@@ -265,7 +265,7 @@ private static void initializeRepositories() {
             var reservationService = hotelManager.getReservationService();
             Reservation reservation = reservationService.createReservation(customerId, roomNumber, checkIn, checkOut);
 
-            long totalPrice = reservation.calculateTotalPrice(room.getPricePerNight());
+            long totalPrice = reservation.calculateTotalPrice(room.getPricePerNight()).toBigInteger().longValue();
 
             System.out.println("Reservation created successfully!");
             System.out.println("Reservation ID: " + reservation.getReservationId());
@@ -375,7 +375,7 @@ private static void initializeRepositories() {
 
             for (Reservation reservation : reservations) {
                 double price = roomPriceByNumber.getOrDefault(reservation.getRoomNumber(), 0.0);
-                long totalPrice = reservation.calculateTotalPrice(price);
+                long totalPrice = reservation.calculateTotalPrice(price).toBigInteger().longValue();
 
                 System.out.printf("%-15s %-15s %-10d %-15s %-15s %-15s (Total: $%d)%n",
                     reservation.getReservationId(),

@@ -3,6 +3,8 @@ package hotel.gui.view;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -59,7 +61,7 @@ public class SearchReservationsView implements View {
     private final Label status = ViewUtils.statusBar();
     private final javafx.scene.control.Button searchButton
             = ViewUtils.primaryButton("Search", this::search);
-    // Removed roomPriceCache; price will be fetched directly from RoomService
+    private final Map<Integer, Double> roomPriceCache = new HashMap<>();
 
     public SearchReservationsView(HotelManager hotelManager, NavigationManager navigationManager) {
         this.hotelManager = hotelManager;
@@ -214,16 +216,13 @@ public class SearchReservationsView implements View {
     }
 
     private String computeTotal(Reservation reservation) {
-        // Directly retrieve the room price for the reservation's room number.
-        double price = hotelManager.getRoomService()
-                .getRoomByNumber(reservation.getRoomNumber())
-                .map(Room::getPricePerNight)
-                .orElse(0.0);
-        return "$" + reservation.calculateTotalPrice(price);
+        double price = roomPriceCache.getOrDefault(reservation.getRoomNumber(), 0.0);
+        return "$" + reservation.calculateTotalPrice(price).toBigInteger();
     }
 
     private void search() {
         try {
+            roomPriceCache.clear();
             List<Reservation> results;
             String title;
             if (byCustomerRadio.isSelected()) {
@@ -268,6 +267,7 @@ public class SearchReservationsView implements View {
                 title = "Reservations for Customer: " + cid + " between "
                         + start.format(FORMATTER) + " and " + end.format(FORMATTER);
             }
+            prefetchRoomPrices(results);
             reservationData.setAll(results);
             ViewUtils.setStatus(status,
                     title + " — " + results.size() + " reservation(s) found.",
@@ -275,6 +275,15 @@ public class SearchReservationsView implements View {
         } catch (RuntimeException e) {
             LOGGER.log(Level.WARNING, "Search reservations failed", e);
             ViewUtils.showError(status, e, LOGGER);
+        }
+    }
+
+    private void prefetchRoomPrices(List<Reservation> reservations) {
+        for (Reservation r : reservations) {
+            roomPriceCache.putIfAbsent(r.getRoomNumber(),
+                    hotelManager.getRoomService().getRoomByNumber(r.getRoomNumber())
+                            .map(Room::getPricePerNight)
+                            .orElse(0.0));
         }
     }
 

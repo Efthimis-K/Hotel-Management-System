@@ -2,12 +2,12 @@ package hotel.gui.view;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 import hotel.exception.HotelException;
 import hotel.gui.NavigationManager;
 import hotel.model.Customer;
 import hotel.service.HotelManager;
+import hotel.util.ValidationUtils;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -25,7 +25,6 @@ public class RegisterCustomerView implements View {
     public static final String TITLE = "Register Customer";
 
     private static final Logger LOGGER = Logger.getLogger(RegisterCustomerView.class.getName());
-    private static final Pattern PHONE_PATTERN = Pattern.compile("^[+]?[0-9]{7,15}$");
 
     private final HotelManager hotelManager;
     private final NavigationManager navigationManager;
@@ -110,11 +109,11 @@ public class RegisterCustomerView implements View {
         if (lastNameField.getText().isBlank()) {
             return false;
         }
-        if (!org.apache.commons.validator.routines.EmailValidator.getInstance()
+        if (!ValidationUtils.getEmailValidator()
                 .isValid(emailField.getText().trim())) {
             return false;
         }
-        if (!PHONE_PATTERN.matcher(phoneField.getText().trim()).matches()) {
+        if (!ValidationUtils.getPhonePattern().matcher(phoneField.getText().trim()).matches()) {
             return false;
         }
         return true;

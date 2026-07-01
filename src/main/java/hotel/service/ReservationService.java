@@ -78,9 +78,7 @@ public class ReservationService {
         if (startDate.isAfter(endDate)) {
             throw new ValidationException("Start date must be before or equal to end date");
         }
-        return reservationRepository.getAllReservations().stream()
-                .filter(r -> !r.getCheckInDate().isAfter(endDate) && !r.getCheckOutDate().isBefore(startDate))
-                .toList();
+        return reservationRepository.getReservationsByDateRange(startDate, endDate);
     }
 
     public boolean isRoomAvailable(int roomNumber, LocalDate checkInDate, LocalDate checkOutDate) {

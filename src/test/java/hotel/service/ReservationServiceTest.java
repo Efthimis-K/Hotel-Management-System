@@ -153,7 +153,7 @@ class ReservationServiceTest {
         LocalDate start = LocalDate.now().plusDays(15);
         Reservation matching = new Reservation("RES-1", "CUST-7", 601, start.plusDays(1), start.plusDays(3));
         Reservation nonMatching = new Reservation("RES-2", "CUST-8", 602, start.plusDays(5), start.plusDays(7));
-        when(reservationRepository.getAllReservations()).thenReturn(List.of(matching, nonMatching));
+        when(reservationRepository.getReservationsByDateRange(start, start.plusDays(2))).thenReturn(List.of(matching));
 
         List<Reservation> reservations = reservationService.getReservationsByDateRange(start, start.plusDays(2));
 

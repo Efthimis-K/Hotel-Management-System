@@ -1,13 +1,11 @@
 package hotel.model;
 
 import java.util.Objects;
-import java.util.regex.Pattern;
-
-import org.apache.commons.validator.routines.EmailValidator;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import hotel.exception.ValidationException;
+import hotel.util.ValidationUtils;
 
 public class Customer {
 
@@ -16,9 +14,6 @@ public class Customer {
     private String lastName;
     private String email;
     private String phoneNumber;
-
-    private static final EmailValidator EMAIL_VALIDATOR = EmailValidator.getInstance();
-    private static final Pattern PHONE_PATTERN = Pattern.compile("^[+]?[0-9]{7,15}$");
 
     public Customer() {
     }
@@ -69,7 +64,7 @@ public class Customer {
     }
 
     public void setEmail(String email) {
-        if (email == null || !EMAIL_VALIDATOR.isValid(email)) {
+        if (email == null || !ValidationUtils.getEmailValidator().isValid(email)) {
             throw new ValidationException("Invalid email format");
         }
         this.email = email;
@@ -80,7 +75,7 @@ public class Customer {
     }
 
     public void setPhoneNumber(String phoneNumber) {
-        if (phoneNumber == null || !PHONE_PATTERN.matcher(phoneNumber).matches()) {
+        if (phoneNumber == null || !ValidationUtils.getPhonePattern().matcher(phoneNumber).matches()) {
             throw new ValidationException("Invalid phone number format");
         }
         this.phoneNumber = phoneNumber;
