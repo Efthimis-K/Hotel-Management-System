@@ -160,7 +160,33 @@ class ReservationServiceTest {
         assertEquals(1, reservations.size());
         assertEquals("RES-1", reservations.get(0).getReservationId());
     }
-
+    
+    @Test
+    void getReservationsByDateRangeIncludesCheckOutEqualToStart() {
+        // Test case where a reservation checks out exactly when the date range starts
+        // This should NOT be considered overlapping based on the SQL logic
+        LocalDate start = LocalDate.now().plusDays(15);
+        Reservation reservation = new Reservation("RES-OVERLAP1", "CUST-TEST1", 101, 
+                LocalDate.now().plusDays(10), start);
+        when(reservationRepository.getReservationsByDateRange(start, start.plusDays(2))).thenReturn(List.of());
+        
+        List<Reservation> reservations = reservationService.getReservationsByDateRange(start, start.plusDays(2));
+        assertEquals(0, reservations.size());
+    }
+    
+    @Test
+    void getReservationsByDateRangeIncludesExactRangeMatch() {
+        // Test case where reservation exactly matches the date range
+        LocalDate start = LocalDate.now().plusDays(15);
+        Reservation reservation = new Reservation("RES-EVENT", "CUST-TEST2", 102, 
+                start, start.plusDays(2));
+        when(reservationRepository.getReservationsByDateRange(start, start.plusDays(2))).thenReturn(List.of(reservation));
+        
+        List<Reservation> reservations = reservationService.getReservationsByDateRange(start, start.plusDays(2));
+        assertEquals(1, reservations.size());
+        assertEquals("RES-EVENT", reservations.get(0).getReservationId());
+    }
+    
     @Test
     void getReservationsByDateRangeRejectsInvertedRange() {
         LocalDate start = LocalDate.now().plusDays(10);
