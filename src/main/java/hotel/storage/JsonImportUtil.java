@@ -34,6 +34,7 @@ public class JsonImportUtil {
 
         Connection conn = DatabaseManager.getInstance().getConnection();
         int successCount = 0;
+        Exception originalException = null;
         try {
             conn.setAutoCommit(false);
             for (hotel.model.Customer customer : customers) {
@@ -46,10 +47,23 @@ public class JsonImportUtil {
             }
             conn.commit();
         } catch (Exception e) {
+            originalException = e;
             conn.rollback();
             throw e;
         } finally {
-            conn.setAutoCommit(true);
+            if (originalException != null) {
+                try {
+                    conn.setAutoCommit(true);
+                } catch (Exception autoCommitEx) {
+                    originalException.addSuppressed(autoCommitEx);
+                }
+            } else {
+                try {
+                    conn.setAutoCommit(true);
+                } catch (Exception autoCommitEx) {
+                    LOGGER.warning("Failed to restore auto-commit: " + autoCommitEx.getMessage());
+                }
+            }
         }
         LOGGER.info("Migrated " + successCount + "/" + customers.size() + " customers.");
     }
@@ -65,6 +79,7 @@ public class JsonImportUtil {
 
         Connection conn = DatabaseManager.getInstance().getConnection();
         int successCount = 0;
+        Exception originalException = null;
         try {
             conn.setAutoCommit(false);
             for (hotel.model.Room room : rooms) {
@@ -77,10 +92,23 @@ public class JsonImportUtil {
             }
             conn.commit();
         } catch (Exception e) {
+            originalException = e;
             conn.rollback();
             throw e;
         } finally {
-            conn.setAutoCommit(true);
+            if (originalException != null) {
+                try {
+                    conn.setAutoCommit(true);
+                } catch (Exception autoCommitEx) {
+                    originalException.addSuppressed(autoCommitEx);
+                }
+            } else {
+                try {
+                    conn.setAutoCommit(true);
+                } catch (Exception autoCommitEx) {
+                    LOGGER.warning("Failed to restore auto-commit: " + autoCommitEx.getMessage());
+                }
+            }
         }
         LOGGER.info("Migrated " + successCount + "/" + rooms.size() + " rooms.");
     }
@@ -96,6 +124,7 @@ public class JsonImportUtil {
 
         Connection conn = DatabaseManager.getInstance().getConnection();
         int successCount = 0;
+        Exception originalException = null;
         try {
             conn.setAutoCommit(false);
             for (hotel.model.Reservation reservation : reservations) {
@@ -108,10 +137,23 @@ public class JsonImportUtil {
             }
             conn.commit();
         } catch (Exception e) {
+            originalException = e;
             conn.rollback();
             throw e;
         } finally {
-            conn.setAutoCommit(true);
+            if (originalException != null) {
+                try {
+                    conn.setAutoCommit(true);
+                } catch (Exception autoCommitEx) {
+                    originalException.addSuppressed(autoCommitEx);
+                }
+            } else {
+                try {
+                    conn.setAutoCommit(true);
+                } catch (Exception autoCommitEx) {
+                    LOGGER.warning("Failed to restore auto-commit: " + autoCommitEx.getMessage());
+                }
+            }
         }
         LOGGER.info("Migrated " + successCount + "/" + reservations.size() + " reservations.");
     }
