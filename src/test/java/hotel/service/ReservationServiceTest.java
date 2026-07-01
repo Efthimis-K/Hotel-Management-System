@@ -162,16 +162,17 @@ class ReservationServiceTest {
     }
     
     @Test
-    void getReservationsByDateRangeIncludesCheckOutEqualToStart() {
-        // Test case where a reservation checks out exactly when the date range starts
-        // This should NOT be considered overlapping based on the SQL logic
+    void getReservationsByDateRangeOverlapsWhenCheckOutEqualsStart() {
+        // Test case where a reservation's check-out date equals the start of the queried range
+        // According to repository SQL, this is considered overlapping and should be returned
         LocalDate start = LocalDate.now().plusDays(15);
         Reservation reservation = new Reservation("RES-OVERLAP1", "CUST-TEST1", 101, 
                 LocalDate.now().plusDays(10), start);
-        when(reservationRepository.getReservationsByDateRange(start, start.plusDays(2))).thenReturn(List.of());
-        
+        when(reservationRepository.getReservationsByDateRange(start, start.plusDays(2))).thenReturn(List.of(reservation));
+
         List<Reservation> reservations = reservationService.getReservationsByDateRange(start, start.plusDays(2));
-        assertEquals(0, reservations.size());
+        assertEquals(1, reservations.size());
+        assertEquals("RES-OVERLAP1", reservations.get(0).getReservationId());
     }
     
     @Test
