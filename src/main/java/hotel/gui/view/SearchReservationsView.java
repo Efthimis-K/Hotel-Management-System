@@ -217,7 +217,7 @@ public class SearchReservationsView implements View {
 
     private String computeTotal(Reservation reservation) {
         double price = roomPriceCache.getOrDefault(reservation.getRoomNumber(), 0.0);
-        return "$" + reservation.calculateTotalPrice(price).toBigInteger();
+        return String.format("$%.2f", reservation.calculateTotalPrice(price));
     }
 
     private void search() {

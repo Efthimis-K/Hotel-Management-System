@@ -1,8 +1,6 @@
 package hotel.model;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
@@ -144,7 +142,7 @@ public class Reservation {
             throw new ValidationException("Cannot calculate total price: check-out is before check-in");
         }
         BigDecimal price = BigDecimal.valueOf(pricePerNight);
-        BigDecimal total = BigDecimal.valueOf(nights).multiply(price, new MathContext(16, RoundingMode.HALF_UP));
+        BigDecimal total = BigDecimal.valueOf(nights).multiply(price);
         if (total.compareTo(BigDecimal.valueOf(Long.MAX_VALUE)) > 0) {
             throw new ValidationException("Total price overflow: " + nights + " nights x $" + pricePerNight);
         }

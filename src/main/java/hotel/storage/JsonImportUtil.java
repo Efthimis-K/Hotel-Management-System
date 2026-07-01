@@ -34,20 +34,14 @@ public class JsonImportUtil {
 
         Connection conn = DatabaseManager.getInstance().getConnection();
         int successCount = 0;
-        int failCount = 0;
         try {
             conn.setAutoCommit(false);
             for (hotel.model.Customer customer : customers) {
-                try {
-                    int rows = insertCustomer(conn, customer);
-                    if (rows > 0) {
-                        successCount++;
-                    } else {
-                        LOGGER.fine("Duplicate customer ignored during import: " + customer.getCustomerId());
-                    }
-                } catch (Exception e) {
-                    failCount++;
-                    LOGGER.warning("Failed to insert customer " + customer.getCustomerId() + ": " + e.getMessage());
+                int rows = insertCustomer(conn, customer);
+                if (rows > 0) {
+                    successCount++;
+                } else {
+                    LOGGER.fine("Duplicate customer ignored during import: " + customer.getCustomerId());
                 }
             }
             conn.commit();
@@ -57,11 +51,7 @@ public class JsonImportUtil {
         } finally {
             conn.setAutoCommit(true);
         }
-        LOGGER.info("Migrated " + successCount + "/" + customers.size() + " customers."
-                + (failCount > 0 ? " (" + failCount + " failed)" : ""));
-        if (failCount > 0 && successCount == 0) {
-            throw new RuntimeException("All " + failCount + " customer imports failed");
-        }
+        LOGGER.info("Migrated " + successCount + "/" + customers.size() + " customers.");
     }
 
     public static void importRooms(File roomsFile) throws Exception {
@@ -75,20 +65,14 @@ public class JsonImportUtil {
 
         Connection conn = DatabaseManager.getInstance().getConnection();
         int successCount = 0;
-        int failCount = 0;
         try {
             conn.setAutoCommit(false);
             for (hotel.model.Room room : rooms) {
-                try {
-                    int rows = insertRoom(conn, room);
-                    if (rows > 0) {
-                        successCount++;
-                    } else {
-                        LOGGER.fine("Duplicate room ignored during import: " + room.getRoomNumber());
-                    }
-                } catch (Exception e) {
-                    failCount++;
-                    LOGGER.warning("Failed to insert room " + room.getRoomNumber() + ": " + e.getMessage());
+                int rows = insertRoom(conn, room);
+                if (rows > 0) {
+                    successCount++;
+                } else {
+                    LOGGER.fine("Duplicate room ignored during import: " + room.getRoomNumber());
                 }
             }
             conn.commit();
@@ -98,11 +82,7 @@ public class JsonImportUtil {
         } finally {
             conn.setAutoCommit(true);
         }
-        LOGGER.info("Migrated " + successCount + "/" + rooms.size() + " rooms."
-                + (failCount > 0 ? " (" + failCount + " failed)" : ""));
-        if (failCount > 0 && successCount == 0) {
-            throw new RuntimeException("All " + failCount + " room imports failed");
-        }
+        LOGGER.info("Migrated " + successCount + "/" + rooms.size() + " rooms.");
     }
 
     public static void importReservations(File reservationsFile) throws Exception {
@@ -116,20 +96,14 @@ public class JsonImportUtil {
 
         Connection conn = DatabaseManager.getInstance().getConnection();
         int successCount = 0;
-        int failCount = 0;
         try {
             conn.setAutoCommit(false);
             for (hotel.model.Reservation reservation : reservations) {
-                try {
-                    int rows = insertReservation(conn, reservation);
-                    if (rows > 0) {
-                        successCount++;
-                    } else {
-                        LOGGER.fine("Duplicate reservation ignored during import: " + reservation.getReservationId());
-                    }
-                } catch (Exception e) {
-                    failCount++;
-                    LOGGER.warning("Failed to insert reservation " + reservation.getReservationId() + ": " + e.getMessage());
+                int rows = insertReservation(conn, reservation);
+                if (rows > 0) {
+                    successCount++;
+                } else {
+                    LOGGER.fine("Duplicate reservation ignored during import: " + reservation.getReservationId());
                 }
             }
             conn.commit();
@@ -139,11 +113,7 @@ public class JsonImportUtil {
         } finally {
             conn.setAutoCommit(true);
         }
-        LOGGER.info("Migrated " + successCount + "/" + reservations.size() + " reservations."
-                + (failCount > 0 ? " (" + failCount + " failed)" : ""));
-        if (failCount > 0 && successCount == 0) {
-            throw new RuntimeException("All " + failCount + " reservation imports failed");
-        }
+        LOGGER.info("Migrated " + successCount + "/" + reservations.size() + " reservations.");
     }
 
     private static int insertCustomer(Connection conn, hotel.model.Customer customer) throws SQLException {

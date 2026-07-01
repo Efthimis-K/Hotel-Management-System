@@ -206,8 +206,8 @@ public class CreateReservationView implements View {
                     long nights = java.time.temporal.ChronoUnit.DAYS.between(checkIn, checkOut);
                     java.math.BigDecimal total = java.math.BigDecimal.valueOf(nights)
                             .multiply(java.math.BigDecimal.valueOf(room.get().getPricePerNight()));
-                    return String.format("$%s (%d night%s @ $%.2f/night)",
-                            total.toBigInteger(), nights, nights == 1 ? "" : "s", room.get().getPricePerNight());
+                    return String.format("$%.2f (%d night%s @ $%.2f/night)",
+                            total, nights, nights == 1 ? "" : "s", room.get().getPricePerNight());
                 }
                 return "(room " + roomNumber + " not found)";
             }
@@ -282,12 +282,12 @@ if (newCustomerMode) {
             java.math.BigDecimal total = room.map(r -> reservation.calculateTotalPrice(r.getPricePerNight())).orElse(java.math.BigDecimal.ZERO);
 
             ViewUtils.setStatus(status,
-                    String.format("Reservation created successfully! ID: %s, Room %d, %s to %s, Total: $%s",
+                    String.format("Reservation created successfully! ID: %s, Room %d, %s to %s, Total: $%.2f",
                             reservation.getReservationId(),
                             roomNumber,
                             checkIn.format(FORMATTER),
                             checkOut.format(FORMATTER),
-                            total.toBigInteger()),
+                            total),
                     ViewUtils.StatusKind.SUCCESS);
             reset();
         } catch (HotelException e) {
