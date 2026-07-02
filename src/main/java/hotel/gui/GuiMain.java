@@ -6,6 +6,7 @@ import hotel.repository.ReservationRepository;
 import hotel.repository.RoomRepository;
 import hotel.service.HotelManager;
 import hotel.storage.DatabaseInitializer;
+import hotel.util.BackgroundTaskService;
 import hotel.util.ErrorHandler;
 
 import javafx.application.Application;
@@ -61,6 +62,7 @@ public class GuiMain extends Application {
             // --- Wire up window-close confirmation ---
             primaryStage.setOnCloseRequest(event -> {
                 Platform.exit();
+                BackgroundTaskService.shutdown();
             });
 
             Scene scene = new Scene(root, 900, 650);

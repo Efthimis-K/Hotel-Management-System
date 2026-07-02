@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -128,6 +129,25 @@ public class ReservationRepository {
         Connection conn = DatabaseManager.getInstance().getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, roomNumber);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    reservations.add(mapReservation(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw StorageException.forDatabase("reservations", e);
+        }
+        return reservations;
+    }
+
+    public List<Reservation> getReservationsByDateRange(LocalDate startDate, LocalDate endDate) {
+        List<Reservation> reservations = new ArrayList<>();
+        String sql = "SELECT reservation_id, customer_id, room_number, check_in_date, check_out_date, status FROM reservations " +
+                "WHERE check_in_date <= ? AND check_out_date >= ?";
+        Connection conn = DatabaseManager.getInstance().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, endDate.toString());
+            stmt.setString(2, startDate.toString());
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     reservations.add(mapReservation(rs));

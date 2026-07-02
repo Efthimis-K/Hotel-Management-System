@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 import hotel.exception.DuplicateResourceException;
 import hotel.exception.ResourceNotFoundException;
@@ -18,9 +17,6 @@ import hotel.storage.DatabaseManager;
 public class RoomRepository {
 
     public RoomRepository() {
-    }
-
-    public RoomRepository(Consumer<Room> availabilityUpdater) {
     }
 
     public void addRoom(Room room) {

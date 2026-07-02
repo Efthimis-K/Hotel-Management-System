@@ -1,5 +1,6 @@
 package hotel;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -265,14 +266,14 @@ private static void initializeRepositories() {
             var reservationService = hotelManager.getReservationService();
             Reservation reservation = reservationService.createReservation(customerId, roomNumber, checkIn, checkOut);
 
-            long totalPrice = reservation.calculateTotalPrice(room.getPricePerNight());
+            BigDecimal totalPrice = reservation.calculateTotalPrice(room.getPricePerNight());
 
             System.out.println("Reservation created successfully!");
             System.out.println("Reservation ID: " + reservation.getReservationId());
             System.out.println("Room: " + roomNumber);
             System.out.println("Check-in: " + checkIn.format(dateFormatter));
             System.out.println("Check-out: " + checkOut.format(dateFormatter));
-            System.out.println("Total Price: $" + totalPrice);
+            System.out.printf("Total Price: $%.2f%n", totalPrice);
         } catch (HotelException e) {
             System.out.println(ErrorHandler.handle(e, LOGGER));
         }
@@ -375,9 +376,9 @@ private static void initializeRepositories() {
 
             for (Reservation reservation : reservations) {
                 double price = roomPriceByNumber.getOrDefault(reservation.getRoomNumber(), 0.0);
-                long totalPrice = reservation.calculateTotalPrice(price);
+                BigDecimal totalPrice = reservation.calculateTotalPrice(price);
 
-                System.out.printf("%-15s %-15s %-10d %-15s %-15s %-15s (Total: $%d)%n",
+                System.out.printf("%-15s %-15s %-10d %-15s %-15s %-15s (Total: $%.2f)%n",
                     reservation.getReservationId(),
                     reservation.getCustomerId(),
                     reservation.getRoomNumber(),

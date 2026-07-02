@@ -1,5 +1,6 @@
 package hotel.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,7 +21,7 @@ class ReservationTest {
         Reservation reservation = new Reservation("RES-1000", "CUST-1", 101, checkIn, checkOut);
 
         assertEquals(ReservationStatus.PENDING, reservation.getStatus());
-        assertEquals(360L, reservation.calculateTotalPrice(120.0));
+        assertEquals(0, reservation.calculateTotalPrice(120.0).compareTo(BigDecimal.valueOf(360)));
     }
 
     @Test

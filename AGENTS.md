@@ -31,3 +31,7 @@
 # Code Help
 
 - Guideline: For code generation and library questions, use Context7: provide the relevant project files, the exact Java version (Java 21), and any dependency versions. Include the minimal reproducible code and describe the desired change or question. Context7 should return code snippets, dependency recommendations, and migration steps tailored to the current codebase and compatible with Java 21.
+
+# Other stuff
+
+- The terminal is in a powershell environment, so always prioritize that when executing commands.

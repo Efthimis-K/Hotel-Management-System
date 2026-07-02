@@ -153,14 +153,41 @@ class ReservationServiceTest {
         LocalDate start = LocalDate.now().plusDays(15);
         Reservation matching = new Reservation("RES-1", "CUST-7", 601, start.plusDays(1), start.plusDays(3));
         Reservation nonMatching = new Reservation("RES-2", "CUST-8", 602, start.plusDays(5), start.plusDays(7));
-        when(reservationRepository.getAllReservations()).thenReturn(List.of(matching, nonMatching));
+        when(reservationRepository.getReservationsByDateRange(start, start.plusDays(2))).thenReturn(List.of(matching));
 
         List<Reservation> reservations = reservationService.getReservationsByDateRange(start, start.plusDays(2));
 
         assertEquals(1, reservations.size());
         assertEquals("RES-1", reservations.get(0).getReservationId());
     }
+    
+    @Test
+    void getReservationsByDateRangeOverlapsWhenCheckOutEqualsStart() {
+        // Test case where a reservation's check-out date equals the start of the queried range
+        // According to repository SQL, this is considered overlapping and should be returned
+        LocalDate start = LocalDate.now().plusDays(15);
+        Reservation reservation = new Reservation("RES-OVERLAP1", "CUST-TEST1", 101, 
+                LocalDate.now().plusDays(10), start);
+        when(reservationRepository.getReservationsByDateRange(start, start.plusDays(2))).thenReturn(List.of(reservation));
 
+        List<Reservation> reservations = reservationService.getReservationsByDateRange(start, start.plusDays(2));
+        assertEquals(1, reservations.size());
+        assertEquals("RES-OVERLAP1", reservations.get(0).getReservationId());
+    }
+    
+    @Test
+    void getReservationsByDateRangeIncludesExactRangeMatch() {
+        // Test case where reservation exactly matches the date range
+        LocalDate start = LocalDate.now().plusDays(15);
+        Reservation reservation = new Reservation("RES-EVENT", "CUST-TEST2", 102, 
+                start, start.plusDays(2));
+        when(reservationRepository.getReservationsByDateRange(start, start.plusDays(2))).thenReturn(List.of(reservation));
+        
+        List<Reservation> reservations = reservationService.getReservationsByDateRange(start, start.plusDays(2));
+        assertEquals(1, reservations.size());
+        assertEquals("RES-EVENT", reservations.get(0).getReservationId());
+    }
+    
     @Test
     void getReservationsByDateRangeRejectsInvertedRange() {
         LocalDate start = LocalDate.now().plusDays(10);
