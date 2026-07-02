@@ -130,7 +130,7 @@ public class Reservation {
         this.status = status;
     }
 
-    public BigDecimal calculateTotalPrice(double pricePerNight) {
+    public static BigDecimal calculateTotalPrice(LocalDate checkInDate, LocalDate checkOutDate, double pricePerNight) {
         if (checkInDate == null || checkOutDate == null) {
             throw new ValidationException("Cannot calculate total price: check-in and check-out dates must be set");
         }
@@ -147,6 +147,10 @@ public class Reservation {
             throw new ValidationException("Total price overflow: " + nights + " nights x $" + pricePerNight);
         }
         return total;
+    }
+
+    public BigDecimal calculateTotalPrice(double pricePerNight) {
+        return calculateTotalPrice(checkInDate, checkOutDate, pricePerNight);
     }
 
     public void cancel() {

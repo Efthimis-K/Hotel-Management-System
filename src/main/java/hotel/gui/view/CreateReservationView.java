@@ -1,5 +1,6 @@
 package hotel.gui.view;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -203,9 +204,8 @@ public class CreateReservationView implements View {
             if (checkIn != null && checkOut != null && checkOut.isAfter(checkIn)) {
                 Optional<Room> room = hotelManager.getRoomService().getRoomByNumber(roomNumber);
                 if (room.isPresent()) {
+                    BigDecimal total = Reservation.calculateTotalPrice(checkIn, checkOut, room.get().getPricePerNight());
                     long nights = java.time.temporal.ChronoUnit.DAYS.between(checkIn, checkOut);
-                    java.math.BigDecimal total = java.math.BigDecimal.valueOf(nights)
-                            .multiply(java.math.BigDecimal.valueOf(room.get().getPricePerNight()));
                     return String.format("$%.2f (%d night%s @ $%.2f/night)",
                             total, nights, nights == 1 ? "" : "s", room.get().getPricePerNight());
                 }
@@ -234,14 +234,14 @@ public class CreateReservationView implements View {
                 baseValid = false;
             }
         }
-if (newCustomerMode) {
-             baseValid = baseValid
-                     && !firstNameField.getText().isBlank()
-                     && !lastNameField.getText().isBlank()
-                     && ValidationUtils.getEmailValidator()
-                             .isValid(emailField.getText().trim())
-                     && ValidationUtils.getPhonePattern().matcher(phoneField.getText().trim()).matches();
-         }
+        if (newCustomerMode) {
+            baseValid = baseValid
+                    && !firstNameField.getText().isBlank()
+                    && !lastNameField.getText().isBlank()
+                    && ValidationUtils.getEmailValidator()
+                            .isValid(emailField.getText().trim())
+                    && ValidationUtils.getPhonePattern().matcher(phoneField.getText().trim()).matches();
+        }
         submitButton.setDisable(!baseValid);
     }
 
@@ -279,7 +279,7 @@ if (newCustomerMode) {
                     .createReservation(id, roomNumber, checkIn, checkOut);
 
             Optional<Room> room = hotelManager.getRoomService().getRoomByNumber(roomNumber);
-            java.math.BigDecimal total = room.map(r -> reservation.calculateTotalPrice(r.getPricePerNight())).orElse(java.math.BigDecimal.ZERO);
+            BigDecimal total = room.map(r -> reservation.calculateTotalPrice(r.getPricePerNight())).orElse(BigDecimal.ZERO);
 
             ViewUtils.setStatus(status,
                     String.format("Reservation created successfully! ID: %s, Room %d, %s to %s, Total: $%.2f",
